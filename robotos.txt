@@ -1,0 +1,4 @@
+User_agent: *
+Disallow: /accounts/
+Disallow: /bag/
+Sitemap: https://cmcd-boutique-ado.herokuapp.com/sitemap.xml
