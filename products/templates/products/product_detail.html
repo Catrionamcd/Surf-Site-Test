@@ -109,9 +109,24 @@
                 </div>
             </div>
         </div>
+
+        {% if freq_bought_together %}
+        <div class="col-12 col-md-6 col-lg-4 offset-lg-2">
+            <div class="row">
+                <h4>Frequently bought together</h4>
+            </div>
+            <div class="row">        
+                <img src="{{ product.image_url }}" width="100px" alt="selected product">
+                <a> + </a>
+                <a href="{% url 'product_detail' freq_bought_together.id %}">
+                    <img src="{{ freq_bought_together.image_url }}" width="100px" alt="frequently bought together">
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
     </div>
 {% endblock %}
-
 {% block postloadjs %}
 {{ block.super }}
 {% include 'products/includes/quantity_input_script.html' %}

@@ -8,6 +8,7 @@ class Category(models.Model):
         
     name = models.CharField(max_length=254)
     friendly_name = models.CharField(max_length=254, null=True, blank=True)
+    sale_percent = models.IntegerField(null=False, blank=False, default=0)
 
     def __str__(self):
         return self.name
