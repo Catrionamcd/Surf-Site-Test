@@ -13,7 +13,10 @@ def bag_contents(request):
     for item_id, item_data in bag.items():
         if isinstance(item_data, int):
             product = get_object_or_404(Product, pk=item_id)
-            total += item_data * product.price
+            if product.category.sale_percent > 0:
+                total += item_data * product.get_sale_price()
+            else:
+                total += item_data * product.price
             product_count += item_data
             bag_items.append({
                 'item_id': item_id,
@@ -23,7 +26,10 @@ def bag_contents(request):
         else:
             product = get_object_or_404(Product, pk=item_id)
             for size, quantity in item_data['items_by_size'].items():
-                total += quantity * product.price
+                if product.category.sale_percent > 0:
+                    total += quantity * product.get_sale_price()
+                else:
+                    total += quantity * product.price
                 product_count += quantity
                 bag_items.append({
                     'item_id': item_id,

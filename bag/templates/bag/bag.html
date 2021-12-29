@@ -45,8 +45,13 @@
                                     {% include "bag/product-info.html" %}
                                 </div>
                                 <div class="col-12 col-sm-6 order-sm-last">
-                                    <p class="my-0">Price Each: ${{ item.product.price }}</p>
-                                    <p><strong>Subtotal: </strong>${{ item.product.price | calc_subtotal:item.quantity }}</p>
+                                    {% if item.product.category.sale_percent > 0 %}
+                                        <p class="my-0">Price Each: <del>${{ item.product.price }}</del><a style="color:red"> ${{ item.product.get_sale_price }}</a></p>
+                                        <p><strong>Subtotal: </strong><del>${{ item.product.price | calc_subtotal:item.quantity }}</del><a style="color:red"> ${{ item.product.get_sale_price | calc_subtotal:item.quantity }}</a></p>
+                                    {% else %}
+                                        <p class="my-0">Price Each: ${{ item.product.price }}</p>
+                                        <p><strong>Subtotal: </strong>${{ item.product.price | calc_subtotal:item.quantity }}</p>
+                                    {% endif %}
                                 </div>
                                 <div class="col-12 col-sm-6">
                                     {% include "bag/quantity-form.html" %}
@@ -81,13 +86,23 @@
                                         {% include "bag/product-info.html" %}
                                     </td>
                                     <td class="py-3">
-                                        <p class="my-0">${{ item.product.price }}</p>
+                                        {% if item.product.category.sale_percent > 0 %}
+                                            <p class="my-0"><del>${{ item.product.price }}</del></p>
+                                            <p class="my-0" style="color:red">${{ item.product.get_sale_price }}</p>
+                                        {% else %}
+                                            <p class="my-0">${{ item.product.price }}</p>
+                                        {% endif %}
                                     </td>
                                     <td class="py-3 w-25">
                                         {% include "bag/quantity-form.html" %}
                                     </td>
                                     <td class="py-3">
-                                        <p class="my-0">${{ item.product.price | calc_subtotal:item.quantity }}</p>
+                                        {% if item.product.category.sale_percent > 0 %}
+                                            <p class="my-0"><del>${{ item.product.price | calc_subtotal:item.quantity }}</del></p>
+                                            <p class="my-0" style="color:red">${{ item.product.get_sale_price | calc_subtotal:item.quantity }}</p>
+                                        {% else %}
+                                            <p class="my-0">${{ item.product.price | calc_subtotal:item.quantity }}</p>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}

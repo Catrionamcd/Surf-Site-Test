@@ -79,3 +79,27 @@ class OrderLineItem(models.Model):
 
     def __str__(self):
         return f'SKU {self.product.sku} on order {self.order.order_number} desc {self.product.name}'
+
+
+class GiftCard(models.Model):
+    giftcard_code = models.CharField(max_length=8, null=False, editable=False)
+    giftcard_value = models.DecimalField(max_digits=10, decimal_places=2, null=False, default=0)
+    giftcard_value_remaining = models.DecimalField(max_digits=10, decimal_places=2, null=False, default=0)
+
+    def __str__(self):
+        return self.giftcard_code
+
+    def _generate_giftcard_code(self):
+        """
+        Generate a random, unique giftcard code using UUID
+        """
+        return uuid.uuid4().hex[:8].upper()
+
+    def save(self, *args, **kwargs):
+        """
+        Override the original save method to set the giftcard code
+        if it hasn't been set already.
+        """
+        if not self.giftcard_code:
+            self.giftcard_code = self._generate_giftcard_code()
+        super().save(*args, **kwargs)

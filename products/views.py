@@ -1,12 +1,11 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q, F
+from django.db.models import Count, Q
 from django.db.models.functions import Lower
 from .models import Product, Category
 from .forms import ProductForm
 from checkout.models import Order, OrderLineItem
-
 
 # Create your views here.
 
@@ -14,8 +13,9 @@ from checkout.models import Order, OrderLineItem
 def all_products(request):
     """A view to show all products, including sorting and search queries """
 
-    """ First get full product list and annotate the sale price of each item """
-    products = Product.objects.all().annotate(sale_price=F('price') / 100 * (100 - F('category__sale_percent')))
+    # """ First get full product list and annotate the sale price of each item """
+    products = Product.objects.all()
+    # products = Product.objects.all().annotate(sale_price=F('price') / 100 * (100 - F('category__sale_percent')))
 
     query = None
     categories = None
@@ -68,7 +68,8 @@ def product_detail(request, product_id):
     """A view to show individual product details """
 
     product = get_object_or_404(Product, pk=product_id)
-    print(product.image_url)
+    """ Calculate product sale price which will be used if sale in progress """
+    # sale_price = product.price / 100 * (100 - product.category.sale_percent)
 
     """ Get Product that was ordered the most while ordering this selected product """
     """ First get a list of all Orders that include this selected Product """
@@ -107,6 +108,7 @@ def product_detail(request, product_id):
 
     context = {
         'product': product,
+        # 'sale_price': sale_price,
         'freq_bought_together': freq_bought_together,
     }
 

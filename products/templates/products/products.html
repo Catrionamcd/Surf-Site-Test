@@ -71,7 +71,7 @@
                                         <div class="col">
                                             {% if product.category.sale_percent > 0 %}
                                                 <p class="lead mb-0 text-left font-weight-bold"><del>Was ${{ product.price }}</del></p>
-                                                <p class="lead mb-0 text-left font-weight-bold" style="color:red">Now ${{ product.sale_price|floatformat:2 }}</p>
+                                                <p class="lead mb-0 text-left font-weight-bold" style="color:red">Now ${{ product.get_sale_price }}</p>
                                             {% else %}
                                                 <p class="lead mb-0 text-left font-weight-bold">${{ product.price }}</p>
                                             {% endif %}

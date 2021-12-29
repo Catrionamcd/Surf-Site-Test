@@ -31,3 +31,6 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    def get_sale_price(self):
+        return round(self.price / 100 * (100 - self.category.sale_percent), 2)
+
