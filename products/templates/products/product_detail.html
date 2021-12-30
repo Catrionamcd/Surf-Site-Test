@@ -124,7 +124,7 @@
                 <img src="{{ product.image_url }}" width="100px" alt="selected product">
                 <a> + </a>
                 <a href="{% url 'product_detail' freq_bought_together.id %}">
-                    <img src="{{ freq_bought_together.image_url }}" width="100px" alt="frequently bought together">
+                    <img src="{{ freq_bought_together.image_url }}" width="100px" alt="{{freq_bought_together.name }}">
                 </a>
             </div>
         </div>

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Order, OrderLineItem
+from .models import Order, OrderLineItem, GiftCard
 
 
 class OrderLineItemAdminInline(admin.TabularInline):
@@ -28,4 +28,15 @@ class OrderAdmin(admin.ModelAdmin):
 
     ordering = ('-date',)
 
+
+class GiftCardAdmin(admin.ModelAdmin):
+    list_display = (
+        'giftcard_code',
+        'giftcard_value',
+        'giftcard_value_remaining',
+    )
+
+
+
 admin.site.register(Order, OrderAdmin)
+admin.site.register(GiftCard, GiftCardAdmin)

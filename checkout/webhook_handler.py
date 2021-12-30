@@ -9,6 +9,7 @@ from profiles.models import UserProfile
 
 import json
 import time
+import datetime
 
 class StripeWH_Handler:
     """Handle Stripe webhooks"""
@@ -46,6 +47,7 @@ class StripeWH_Handler:
         """
         Handle the payment_intent.succeeded webhook from Stripe
         """
+        print("In STRIPE Succeed")
         intent = event.data.object
         pid = intent.id
         bag = intent.metadata.bag
@@ -99,6 +101,7 @@ class StripeWH_Handler:
                 attempt += 1
                 time.sleep(1)
         if order_exists:
+            print("STRIPE - Already Exists", datetime.datetime.now().strftime('%H:%M:%S:%f'))
             self._send_confirmation_email(order)
             return HttpResponse(
                 content=f'Webhook received: {event["type"]} | SUCCESS: Verified order already in database',
@@ -138,6 +141,7 @@ class StripeWH_Handler:
                                 product_size=size,
                             )
                             order_line_item.save()
+                print("STRIPE - Had to create", datetime.datetime.now().strftime('%H:%M:%S:%f'))
             except Exception as e:
                 if order:
                     order.delete()

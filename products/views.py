@@ -12,9 +12,9 @@ from checkout.models import Order, OrderLineItem
 
 def all_products(request):
     """A view to show all products, including sorting and search queries """
-
+    
     # """ First get full product list and annotate the sale price of each item """
-    products = Product.objects.all()
+    products = Product.objects.all().exclude(category__giftcard_category=True)
     # products = Product.objects.all().annotate(sale_price=F('price') / 100 * (100 - F('category__sale_percent')))
 
     query = None
@@ -66,7 +66,7 @@ def all_products(request):
 
 def product_detail(request, product_id):
     """A view to show individual product details """
-
+    
     product = get_object_or_404(Product, pk=product_id)
     """ Calculate product sale price which will be used if sale in progress """
     # sale_price = product.price / 100 * (100 - product.category.sale_percent)
@@ -75,7 +75,7 @@ def product_detail(request, product_id):
     """ First get a list of all Orders that include this selected Product """
     orders_with_this_product = OrderLineItem.objects.filter(product=product_id).values_list('order',flat=True)
     """ Next get a list of Product Items ordered in all of the Orders retrieved above """
-    all_products_in_these_orders = OrderLineItem.objects.filter(order__in=orders_with_this_product)
+    all_products_in_these_orders = OrderLineItem.objects.filter(order__in=orders_with_this_product).exclude(product__category__giftcard_category=True)
     """ Now Count how many times each product was ordered across all of these Orders """
     each_product_count = all_products_in_these_orders.values('product').order_by('product').annotate(num_ordered=Count('product'))
     """ Finally sequence from largest to smallest count """

@@ -13,6 +13,7 @@ from bag.contexts import bag_contents
 
 import stripe
 import json
+import datetime
 
 
 @require_POST
@@ -85,6 +86,7 @@ def checkout(request):
                     order.delete()
                     return redirect(reverse('view_bag'))
 
+            print("In my code", datetime.datetime.now().strftime('%H:%M:%S:%f'))
             # Save the info to the user's profile if all is well
             request.session['save_info'] = 'save-info' in request.POST
             return redirect(reverse('checkout_success', args=[order.order_number]))
