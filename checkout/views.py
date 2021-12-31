@@ -13,6 +13,7 @@ from bag.contexts import bag_contents
 
 import stripe
 import json
+from django.http import JsonResponse
 
 """ TEMP """
 import datetime
@@ -210,6 +211,13 @@ def checkout_success(request, order_number):
     ) 
     """ END TEMP """
 
-
-
     return render(request, template, context)
+
+
+def get_giftcard_status(giftcard_code):
+    print("In view code")
+    data = {
+        'value_remaining': 50,
+    }
+
+    return JsonResponse(data)
