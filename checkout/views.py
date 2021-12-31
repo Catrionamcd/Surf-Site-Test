@@ -13,7 +13,12 @@ from bag.contexts import bag_contents
 
 import stripe
 import json
+
+""" TEMP """
 import datetime
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+""" END TEMP """
 
 
 @require_POST
@@ -34,10 +39,12 @@ def cache_checkout_data(request):
 
 
 def checkout(request):
+    print("In my code 1 ", datetime.datetime.now().strftime('%H:%M:%S:%f'))
     stripe_public_key = settings.STRIPE_PUBLIC_KEY
     stripe_secret_key = settings.STRIPE_SECRET_KEY
 
     if request.method == 'POST':
+        print("In my code 2 ", datetime.datetime.now().strftime('%H:%M:%S:%f'))
         bag = request.session.get('bag', {})
 
         form_data = {
@@ -51,7 +58,7 @@ def checkout(request):
             'street_address2': request.POST['street_address2'],
             'county': request.POST['county'],
         }
-
+        print("In my code 3 ", datetime.datetime.now().strftime('%H:%M:%S:%f'))
         order_form = OrderForm(form_data)
         if order_form.is_valid():
             order = order_form.save(commit=False)
@@ -59,6 +66,7 @@ def checkout(request):
             order.stripe_pid = pid
             order.original_bag = json.dumps(bag)
             order.save()
+            print("In my code 4 ", datetime.datetime.now().strftime('%H:%M:%S:%f'))
             for item_id, item_data in bag.items():
                 try:
                     product = Product.objects.get(id=item_id)
@@ -86,7 +94,7 @@ def checkout(request):
                     order.delete()
                     return redirect(reverse('view_bag'))
 
-            print("In my code", datetime.datetime.now().strftime('%H:%M:%S:%f'))
+            print("In my code 5 ", datetime.datetime.now().strftime('%H:%M:%S:%f'))
             # Save the info to the user's profile if all is well
             request.session['save_info'] = 'save-info' in request.POST
             return redirect(reverse('checkout_success', args=[order.order_number]))
@@ -181,5 +189,27 @@ def checkout_success(request, order_number):
     context = {
         'order': order,
     }
+
+
+    """ TEMP """
+    print("AT PRINT STAGE")
+    cust_email = order.email
+    subject = render_to_string(
+        'checkout/confirmation_emails/confirmation_email_subject.txt',
+        {'order': order})
+    order_items = OrderLineItem.objects.filter(order=order)
+    body = render_to_string(
+        'checkout/confirmation_emails/confirmation_email_body.txt',
+        {'order': order, 'order_items': order_items, 'contact_email': settings.DEFAULT_FROM_EMAIL})
+    
+    send_mail(
+        subject,
+        body,
+        settings.DEFAULT_FROM_EMAIL,
+        [cust_email]
+    ) 
+    """ END TEMP """
+
+
 
     return render(request, template, context)

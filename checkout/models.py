@@ -9,6 +9,9 @@ from django_countries.fields import CountryField
 from products.models import Product
 from profiles.models import UserProfile
 
+from django import template
+register = template.Library()
+
 
 class Order(models.Model):
     order_number = models.CharField(max_length=32, null=False, editable=False)
@@ -80,6 +83,16 @@ class OrderLineItem(models.Model):
             self.lineitem_total = self.product.price * self.quantity
         super().save(*args, **kwargs)
 
+        """ Now check if a Gift Card item purchase and create a Giftcard entry """
+        if self.product.category.giftcard_category:
+            for i in range(self.quantity):
+                gift_card = GiftCard(
+                    giftcard_value = self.product.price,
+                    giftcard_value_remaining = self.product.price,
+                    order_line_item = self,
+                )
+                gift_card.save()
+
     def __str__(self):
         return f'SKU {self.product.sku} on order {self.order.order_number} desc {self.product.name}'
 
@@ -107,3 +120,9 @@ class GiftCard(models.Model):
         if not self.giftcard_code:
             self.giftcard_code = self._generate_giftcard_code()
         super().save(*args, **kwargs)
+
+    # @register.filter
+    # def giftcards_in_order_line(giftcards, order_line_item):  
+    #     giftcards = GiftCard.filter(order_line_item=order_line_item)
+    #     return giftcards
+    #     # return giftcards.filter(order_line_item=order_line_item)

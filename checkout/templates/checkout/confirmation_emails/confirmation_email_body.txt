@@ -1,9 +1,16 @@
+{% load checkout_filters %}
 Hello {{ order.full_name }}!
 
 This is a confirmation of your order at Boutique Ado. Your order information is below:
 
 Order Number: {{ order.order_number }}
 Order Date: {{ order.date }}
+
+{% for item in order_items %}  
+    {{ forloop.counter }}. {{ item.product.name }} x {{ item.quantity }}
+{% if item.product.category.giftcard_category %} {% for giftcard in giftcards|giftcards_in_order_line:item %}
+        - {{ giftcard.giftcard_code }}
+{% endfor %} {% endif %} {% endfor %}
 
 Order Total: ${{ order.order_total }}
 Delivery: ${{ order.delivery_cost }}
