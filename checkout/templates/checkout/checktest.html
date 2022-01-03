@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+<!-- {% load bag_tools %} -->
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'checkout/css/checkout.css' %}">
+{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        <div class="row">
+            <div class="col"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="overlay"></div>
+    <div class="container">
+        <!-- <div class="row">
+            <div class="col">
+                <hr>
+                <h2 class="logo-font mb-4">Checkout</h2>
+                <hr>
+            </div>
+        </div> -->
+
+        <div class="row">
+            <!-- <div class="col-12 col-lg-6 order-lg-last mb-5"> -->
+                <!-- <p class="text-muted">Order Summary ({{ product_count }})</p> -->
+                <!-- <div class="row">
+                    <div class="col-7 offset-2">
+                        <p class="mb-1 mt-0 small text-muted">Item</p>
+                    </div>
+                    <div class="col-3 text-right">
+                        <p class="mb-1 mt-0 small text-muted">Subtotal</p>
+                    </div>
+                </div> -->
+                <!-- {% for item in bag_items %}
+                    <div class="row">
+                        <div class="col-2 mb-1">
+                            <a href="{% url 'product_detail' item.product.id %}">
+                                {% if item.product.image %}
+                                    <img class="w-100" src="{{ item.product.image.url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <img class="w-100" src="{{ MEDIA_URL }}noimage.png" alt="{{ product.name }}">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="col-7">
+                            <p class="my-0"><strong>{{ item.product.name }}</strong></p>
+                            <p class="my-0 small">Size: {% if item.product.has_sizes %}{{ item.size|upper }}{% else %}N/A{% endif %}</p>
+                            <p class="my-0 small text-muted">Qty: {{ item.quantity }}</p>
+                        </div>
+                        <div class="col-3 text-right">
+                            {% if item.product.category.sale_percent > 0 %}
+                                <p class="my-0 small text-muted">${{ item.product.get_sale_price | calc_subtotal:item.quantity }}</p>
+                            {% else %}
+                                <p class="my-0 small text-muted">${{ item.product.price | calc_subtotal:item.quantity }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %} -->
+                <!-- <hr class="my-0">
+                <div class="row text-black text-right">
+                    <div class="col-7 offset-2">
+                        <p class="my-0">Order Total:</p>
+                        <p class="my-0">Delivery:</p>
+                        <p class="my-0">Grand Total:</p>
+                    </div>
+                    <div class="col-3">
+                        <p class="my-0">${{ total | floatformat:2 }}</p>
+                        <p class="my-0">${{ delivery | floatformat:2 }}</p>
+                        <p class="my-0"><strong>${{ grand_total | floatformat:2 }}</strong></p>
+                    </div>
+                </div> -->
+            <!-- </div> -->
+
+
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+            
+                <label>Gift Card:</label><br>
+                <input type="text" id="giftcard_code" name="giftcard_code"><br>
+                <label id="value_remaining"></label><br>
+                <button type="submit" id="mylike" onClick="reply_click(this)" name="blog_post_id" value="" class="">
+                    <i class="fas fa-heart"></i>
+
+                </button>
+            
+
+
+
+
+        </div>
+    </div>
+
+
+    <script type='text/javascript'>
+        // JavaScript function to get cookie by name; retrieved from https://docs.djangoproject.com/en/3.1/ref/csrf/
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // $('#mylike').click(function(){
+        function reply_click(clicked_btn) {
+            console.log("IN JAVASCRIPT FUNCTioN")
+            var giftcode;
+            // giftcode = $(giftcard_code).attr("value");
+            // console.log(giftcode)
+            // var other_giftcode;
+            giftcode = document.getElementById('giftcard_code').value
+            console.log(giftcode)
+            // console.log("abcd")
+    
+            // var thenum = clicked_btn.id.replace( /^\D+/g, '');
+            // console.log(thenum)
+            // document.getElementById('numlikes'+thenum).innerHTML = 20
+    
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                type: 'POST',
+                url: "{% url 'get_giftcard_status' %}",
+                data: {
+                    'giftcard_code': giftcode,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data.value_remaining)
+                    console.log("HELLO")
+                    document.getElementById('value_remaining').innerHTML = data.value_remaining
+                console.log("BYE")
+                // if (data.is_taken) {
+                //     alert(data.error_message);
+                }
+            // }
+            })
+            
+            // console.log(data.value_remaining)
+        }
+        // );
+    </script>
+{% endblock %}
+
+{% block postloadjs %}
+    <!-- {{ block.super }} -->
+    <!-- {{ stripe_public_key|json_script:"id_stripe_public_key" }}
+    {{ client_secret|json_script:"id_client_secret" }}
+    <script src="{% static 'checkout/js/stripe_elements.js' %}"></script> -->
+{% endblock %}

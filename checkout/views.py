@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.conf import settings
 
 from .forms import OrderForm
-from .models import Order, OrderLineItem
+from .models import Order, OrderLineItem, GiftCard
 
 from products.models import Product
 from profiles.models import UserProfile
@@ -25,13 +25,40 @@ from django.template.loader import render_to_string
 @require_POST
 def cache_checkout_data(request):
     try:
+        print("cache checkout: ", datetime.datetime.now().strftime('%H:%M:%S:%f'))
         pid = request.POST.get('client_secret').split('_secret')[0]
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        stripe.PaymentIntent.modify(pid, metadata={
-            'bag': json.dumps(request.session.get('bag', {})),
-            'save_info': request.POST.get('save_info'),
-            'username': request.user,
-        })
+        giftcard_code = request.POST.get('giftcard_code')
+        value_remaining = 0
+        try:
+            gift_card = GiftCard.objects.get(giftcard_code=giftcard_code)
+            value_remaining = gift_card.giftcard_value_remaining
+        except:
+            value_remaining = -1
+        
+        if value_remaining > 0:
+            current_bag = bag_contents(request)
+            total = current_bag['grand_total']
+            if value_remaining > total:
+                new_total = 0
+                new_value_remaining = value_remaining - total
+            else:
+                new_value_remaining = 0
+                new_total = round((total - value_remaining) * 100)
+            gift_card.giftcard_value_remaining = new_value_remaining
+            gift_card.save()
+            
+            stripe.PaymentIntent.modify(pid, amount=new_total, metadata={
+                'bag': json.dumps(request.session.get('bag', {})),
+                'save_info': request.POST.get('save_info'),
+                'username': request.user,
+            })
+        else:
+            stripe.PaymentIntent.modify(pid, metadata={
+                'bag': json.dumps(request.session.get('bag', {})),
+                'save_info': request.POST.get('save_info'),
+                'username': request.user,
+            })
         return HttpResponse(status=200)
     except Exception as e:
         messages.error(request, 'Sorry, your payment cannot be \
@@ -59,7 +86,7 @@ def checkout(request):
             'street_address2': request.POST['street_address2'],
             'county': request.POST['county'],
         }
-        print("In my code 3 ", datetime.datetime.now().strftime('%H:%M:%S:%f'))
+
         order_form = OrderForm(form_data)
         if order_form.is_valid():
             order = order_form.save(commit=False)
@@ -67,7 +94,6 @@ def checkout(request):
             order.stripe_pid = pid
             order.original_bag = json.dumps(bag)
             order.save()
-            print("In my code 4 ", datetime.datetime.now().strftime('%H:%M:%S:%f'))
             for item_id, item_data in bag.items():
                 try:
                     product = Product.objects.get(id=item_id)
@@ -95,7 +121,6 @@ def checkout(request):
                     order.delete()
                     return redirect(reverse('view_bag'))
 
-            print("In my code 5 ", datetime.datetime.now().strftime('%H:%M:%S:%f'))
             # Save the info to the user's profile if all is well
             request.session['save_info'] = 'save-info' in request.POST
             return redirect(reverse('checkout_success', args=[order.order_number]))
@@ -151,6 +176,52 @@ def checkout(request):
     return render(request, template, context)
 
 
+
+def checktest(request):
+    # print("In checktest code 1 ", datetime.datetime.now().strftime('%H:%M:%S:%f'))
+
+    if request.method == 'GET':
+        # bag = request.session.get('bag', {})
+        # if not bag:
+        #     messages.error(request, "There's nothing in your bag at the moment")
+        #     return redirect(reverse('products'))
+
+        # current_bag = bag_contents(request)
+        # total = current_bag['grand_total']
+
+        # Attempt to prefill the form with any info the user maintains in their profile
+        # if request.user.is_authenticated:
+        #     try:
+        #         profile = UserProfile.objects.get(user=request.user)
+        #         order_form = OrderForm(initial={
+        #             'full_name': profile.user.get_full_name(),
+        #             'email': profile.user.email,
+        #             'phone_number': profile.default_phone_number,
+        #             'country': profile.default_country,
+        #             'postcode': profile.default_postcode,
+        #             'town_or_city': profile.default_town_or_city,
+        #             'street_address1': profile.default_street_address1,
+        #             'street_address2': profile.default_street_address2,
+        #             'county': profile.default_county,
+        #         })
+        #     except UserProfile.DoesNotExist:
+        #         order_form = OrderForm()
+        # else:
+        #     order_form = OrderForm()
+
+
+        template = 'checkout/checktest.html'
+        context = {
+            # 'order_form': order_form,
+        }
+
+        # return render(request, template, context)
+        return render(request, template)
+
+
+
+
+
 def checkout_success(request, order_number):
     """
     Handle successful checkouts
@@ -193,7 +264,6 @@ def checkout_success(request, order_number):
 
 
     """ TEMP """
-    print("AT PRINT STAGE")
     cust_email = order.email
     subject = render_to_string(
         'checkout/confirmation_emails/confirmation_email_subject.txt',
@@ -214,10 +284,18 @@ def checkout_success(request, order_number):
     return render(request, template, context)
 
 
-def get_giftcard_status(giftcard_code):
-    print("In view code")
+def get_giftcard_status(request):
+    
+    giftcard_code = request.GET.get('giftcard_code', None)
+    value_remaining = 0
+    try:
+        gift_card = GiftCard.objects.get(giftcard_code=giftcard_code)
+        value_remaining = gift_card.giftcard_value_remaining
+    except:
+        value_remaining = -1
+
     data = {
-        'value_remaining': 50,
+        'value_remaining': value_remaining,
     }
 
     return JsonResponse(data)

@@ -65,3 +65,26 @@ select option[value=""] {
     margin: 0;
     height: 100%;
 }
+
+#loading-giftcard-overlay {
+	display: none;
+	position: fixed;
+    margin: 0px;
+    padding: 0px;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 50%;
+    background: rgba(23, 162, 184, .85);
+    z-index: 9999;
+}
+
+.loading-giftcard-spinner {
+	display: flex;
+    margin: 0px;
+    padding: 0px;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    height: 50%;
+}
