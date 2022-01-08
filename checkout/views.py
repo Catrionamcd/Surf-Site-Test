@@ -48,10 +48,13 @@ def cache_checkout_data(request):
             gift_card.giftcard_value_remaining = new_value_remaining
             gift_card.save()
             
-            stripe.PaymentIntent.modify(pid, amount=new_total, metadata={
-                'bag': json.dumps(request.session.get('bag', {})),
-                'save_info': request.POST.get('save_info'),
-                'username': request.user,
+            if new_total == 0:
+                stripe.PaymentIntent.cancel(pid)
+            else:
+                stripe.PaymentIntent.modify(pid, amount=new_total, metadata={
+                    'bag': json.dumps(request.session.get('bag', {})),
+                    'save_info': request.POST.get('save_info'),
+                    'username': request.user,
             })
         else:
             stripe.PaymentIntent.modify(pid, metadata={

@@ -205,7 +205,7 @@
                 success: function (data) {
                     var value_remaining = data.value_remaining
                     if (value_remaining == -1) {
-                        document.getElementById('value_remaining').innerHTML = "."
+                        document.getElementById('value_remaining').innerHTML = " "
                     } else {
                         document.getElementById('value_remaining').innerHTML = "Remaining Value: " + data.value_remaining
                     }

@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.db.models.functions import Lower
-from .models import Product, Category
+from .models import Product, Category, SubCategory
 from .forms import ProductForm
 from checkout.models import Order, OrderLineItem
 
@@ -12,7 +12,10 @@ from checkout.models import Order, OrderLineItem
 
 def all_products(request):
     """A view to show all products, including sorting and search queries """
-    
+
+    categories_list = Category.objects.all().annotate(subcat_count=Count('subcategory'))
+    subcategories_list = SubCategory.objects.all()
+
     # """ First get full product list and annotate the sale price of each item """
     products = Product.objects.all().exclude(category__giftcard_category=True)
     # products = Product.objects.all().annotate(sale_price=F('price') / 100 * (100 - F('category__sale_percent')))
@@ -54,6 +57,8 @@ def all_products(request):
     current_sorting = f'{sort}_{direction}'
 
     context = {
+        'categories_list': categories_list,
+        # 'subcategories_list': subcategories_list,
         'products': products,
         'search_term': query,
         'current_categories': categories,
