@@ -7,22 +7,81 @@
         </li>
 
 
-
-
-        {% for category_item in categories_list %}
-        <li class="nav-item dropdown">
-            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="#" id="homeware-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{ category_item.friendly_name }}
+        {% for category_item in categories_list %}      
+        <li class="nav-item dropdown">       
+            
+            <input class="form-check-input ml-1" type="checkbox" name="main-cat" id="main-cat-{{ category_item.id }}" value="{{ category_item.id }}">
+            <a class="logo-font font-weight-bold nav-link text-black mr-5 ml-4 {% if category_item.subcat_count > 0 %} dropdown-toggle {% endif %}" 
+                href="#" id="{{ category_item.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ category_item.friendly_name }}  
             </a>
-            {{ category_item.subcat_count }}
+            
             {% if category_item.subcat_count > 0 %}
-            <div class="dropdown-menu border-0" aria-labelledby="homeware-link">
+            
+            <div class="dropdown-menu border-0 mt-0 pt-0 mb-0 pb-0" aria-labelledby="homeware-link">
+            <ul>
                 {% for subcategory_item in category_item.subcategory_set.all %}
-                <a href="{% url 'products' %}?category=bed_bath" class="dropdown-item">{{ subcategory_item.friendly_name }}</a>
+                <li>
+                <a href="{% url 'products' %}?category=bed_bath" class="dropdown-item pt-0 mb-0 pb-0">
+                    <input type="checkbox" name="main-sub" id="main-sub-{{ subcategory_item.id }}" value="{{ subcategory_item.id }}">
+                    {{ subcategory_item.friendly_name }}
+                </a>
+                </li>
                 {% endfor %}
+            </ul>
             </div>
             {% endif %}
         </li>
         {% endfor %}
+
+
+        
+
     </ul>
 </div>
+
+<script type="text/javascript">
+
+    $('input[type="checkbox"]').change(function(e) {
+
+        var checked = $(this).prop("checked"),
+            container = $(this).parent(),
+            siblings = container.siblings();
+
+        container.find('input[type="checkbox"]').prop({
+            indeterminate: false,
+            checked: checked
+        });
+
+        function checkSiblings(el) {
+
+            var parent = el.parent().parent(),
+                all = true;
+
+            el.siblings().each(function() {
+                let returnValue = all = ($(this).children('input[type="checkbox"]').prop("checked") === checked);
+                return returnValue;
+            });
+
+            if (all && checked) {
+                parent.children('input[type="checkbox"]').prop({
+                    indeterminate: false,
+                    checked: checked
+                });
+                checkSiblings(parent);
+            } else if (all && !checked) {
+                parent.children('input[type="checkbox"]').prop("checked", checked);
+                parent.children('input[type="checkbox"]').prop("indeterminate", (parent.find('input[type="checkbox"]:checked').length > 0));
+                checkSiblings(parent);
+            } else {
+                el.parents("li").children('input[type="checkbox"]').prop({
+                    indeterminate: true,
+                    checked: false
+                });
+            }
+        }
+
+        checkSiblings(container);
+    });
+
+</script>
