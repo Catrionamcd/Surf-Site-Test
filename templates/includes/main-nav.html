@@ -19,16 +19,16 @@
             {% if category_item.subcat_count > 0 %}
             
             <div class="dropdown-menu border-0 mt-0 pt-0 mb-0 pb-0" aria-labelledby="homeware-link">
-            <ul>
+            
                 {% for subcategory_item in category_item.subcategory_set.all %}
-                <li>
+                
                 <a href="{% url 'products' %}?category=bed_bath" class="dropdown-item pt-0 mb-0 pb-0">
                     <input type="checkbox" name="main-sub" id="main-sub-{{ subcategory_item.id }}" value="{{ subcategory_item.id }}">
                     {{ subcategory_item.friendly_name }}
                 </a>
-                </li>
+                
                 {% endfor %}
-            </ul>
+            
             </div>
             {% endif %}
         </li>
@@ -82,6 +82,22 @@
         }
 
         checkSiblings(container);
+
+        const mainCatChecked = document.querySelectorAll('input[name="main-cat"][type="checkbox"]:checked');
+        const mainCatIndeterminate = document.querySelectorAll('input[name="main-cat"][type="checkbox"]:indeterminate');
+        const mainSubChecked = document.querySelectorAll('input[name="sub-cat"][type="checkbox"]:checked');
+        const mainSubIndeterminate = document.querySelectorAll('input[sub="main-cat"][type="checkbox"]:indeterminate');       
+
+        console.log(mainCatChecked);
+        console.log(mainCatIndeterminate);
+        console.log(mainSubChecked);
+        console.log(mainSubIndeterminate);
+
+
+        // const checkedValues = [
+        //     ...document.querySelectorAll('input[type="checkbox"]:checked')
+        // ].map(check => check.value);        
+
     });
 
 </script>
