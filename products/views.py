@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
@@ -10,11 +11,55 @@ from checkout.models import Order, OrderLineItem
 # Create your views here.
 
 
+def update_session(request):
+    print("UPDATE_SESSION")
+    print("IN VIEW req.post: ", request.GET)
+    
+    eventid = request.GET.getlist('eventID[]')
+    eventidnum = list(map(int, eventid))
+    start = request.GET['start']
+    print("request eventid", eventid)
+    print("request eventid num", eventidnum)
+    print("request start", start)
+
+    # if request.is_ajax():      
+    #     try:
+
+    print("AJAX REQ")
+    request.session['eventID'] = eventidnum
+    request.session['start'] = start
+
+    print("session eventid: ", request.session.get('eventID'))
+    print("session start: ", request.session.get('start'))
+
+    print("END UPDATE_SESSION")
+
+    #     except KeyError:
+    #         return HttpResponse('Error')
+    # else:
+    #     raise Http404
+    
+    return HttpResponse("Success")
+
+
 def all_products(request):
     """A view to show all products, including sorting and search queries """
 
+    print("ALL_PRODUCTS")
+    
+    eventID = request.session.get('eventID', {})
+    start = request.session.get('start', {})
+    print("eventID: ", eventID)
+    print("start: ", start)
+
+
+    request.session['djtest'] = 30
+
+    # for m in list(mycars.keys()):
+    #     print("loop", m)
+
     categories_list = Category.objects.all().annotate(subcat_count=Count('subcategory'))
-    subcategories_list = SubCategory.objects.all()
+    # subcategories_list = SubCategory.objects.all()
 
     # """ First get full product list and annotate the sale price of each item """
     products = Product.objects.all().exclude(category__giftcard_category=True)
@@ -63,7 +108,7 @@ def all_products(request):
         'search_term': query,
         'current_categories': categories,
         'current_sorting': current_sorting,
-
+        'session_list': eventID,
     }
 
     return render(request, 'products/products.html', context)
