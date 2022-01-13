@@ -43,10 +43,21 @@
 <script type="text/javascript">
 
     window.onload = function() {
-        console.log("page load: ", "{{ session_list }}");
+        console.log("page load: ", "{{ main_cat_checked }}");
+        // var main_cat_checked = json("{{ main_cat_checked }}")
+        var main_cat_checked = JSON.parse('{{ main_cat_checked | escapejs }}');
+        console.log("MAIN ", main_cat_checked)
+        // var main_cat_checked = {{ main_cat_checked }};
+        // for (chkBox in main_cat_checked) {
+        for (i = 0; i < main_cat_checked.length; ++i) {
+            console.log(main_cat_checked[i])
+            document.getElementById("main-cat-"+main_cat_checked[i]).checked=true;
+        }
     };
 
     $('input[type="checkbox"]').change(function(e) {
+        // Menu checkbox clicked
+        // First traverse the menu and update parent/child checkboxes based on the Clicked checkbox
 
         var checked = $(this).prop("checked"),
             container = $(this).parent(),
@@ -87,9 +98,32 @@
 
         checkSiblings(container);
 
-        const mainCatChecked = [
-            document.querySelectorAll('input[name="main-cat"][type="checkbox"]:checked')
-        ].map(num => num.value)   
+        // Next get 
+
+        // const checkBoxList =
+        //     document.querySelectorAll('input[name="main-cat"][type="checkbox"]:checked')
+        // console.log("checkBoxList", checkBoxList);
+
+        var mainCatChecked = []
+        document.querySelectorAll('input[name="main-cat"][type="checkbox"]:checked').forEach(function(element) {
+            mainCatChecked.push(element.getAttribute('value'))
+            console.log("GET EL:", element.getAttribute('value'));
+        });
+        // mainCatChecked.push('7')
+        // mainCatChecked.push('9')
+        
+        console.log("GOT CHECKED: ", mainCatChecked);
+
+
+
+
+
+        // mainCatChecked = []
+        // for (chkBox = 0; chkBox < checkBoxList.length; ++chkBox) {
+        //     console.log("checkBoxItem: --->", chkBox)
+        //     mainCatChecked = mainCatChecked + chkBox.id
+        // }
+
         const mainCatIndeterminate = document.querySelectorAll('input[name="main-cat"][type="checkbox"]:indeterminate');
         const mainSubChecked = document.querySelectorAll('input[name="main-sub"][type="checkbox"]:checked');
 
@@ -133,7 +167,7 @@
         $.post({
             url: "{% url 'update_session' %}",
             type: "GET",
-            data: {eventID: eventID, start: start},
+            data: {eventID: eventID, start: start, main_cat_checked: mainCatChecked},
             success: function(response){},
             complete: function(){},
             error: function (xhr, textStatus, thrownError){

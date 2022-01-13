@@ -22,15 +22,22 @@ def update_session(request):
     print("request eventid num", eventidnum)
     print("request start", start)
 
+    main_cat_checked = request.GET.getlist('main_cat_checked[]')
+    main_cat_checked_num = list(map(int, main_cat_checked))
+    print("request main_cat_checked", main_cat_checked)
+
+
     # if request.is_ajax():      
     #     try:
 
     print("AJAX REQ")
     request.session['eventID'] = eventidnum
     request.session['start'] = start
+    request.session['main_cat_checked'] = main_cat_checked_num
 
     print("session eventid: ", request.session.get('eventID'))
     print("session start: ", request.session.get('start'))
+    print("session main_cat_checked: ", request.session.get('main_cat_checked'))
 
     print("END UPDATE_SESSION")
 
@@ -49,6 +56,7 @@ def all_products(request):
     
     eventID = request.session.get('eventID', {})
     start = request.session.get('start', {})
+    main_cat_checked = request.session.get('main_cat_checked', {})
     print("eventID: ", eventID)
     print("start: ", start)
 
@@ -109,6 +117,7 @@ def all_products(request):
         'current_categories': categories,
         'current_sorting': current_sorting,
         'session_list': eventID,
+        'main_cat_checked': main_cat_checked,
     }
 
     return render(request, 'products/products.html', context)
