@@ -12,39 +12,34 @@ from checkout.models import Order, OrderLineItem
 
 
 def update_session(request):
-    print("UPDATE_SESSION")
-    print("IN VIEW req.post: ", request.GET)
-    
-    eventid = request.GET.getlist('eventID[]')
-    eventidnum = list(map(int, eventid))
-    start = request.GET['start']
-    print("request eventid", eventid)
-    print("request eventid num", eventidnum)
-    print("request start", start)
 
-    main_cat_checked = request.GET.getlist('main_cat_checked[]')
+    main_cat_checked = request.POST.getlist('main_cat_checked[]')
     main_cat_checked_num = list(map(int, main_cat_checked))
-    print("request main_cat_checked", main_cat_checked)
+
+    main_cat_indeterminate = request.POST.getlist('main_cat_indeterminate[]')
+    main_cat_indeterminate_num = list(map(int, main_cat_indeterminate))
+
+    main_sub_checked = request.POST.getlist('main_sub_checked[]')
+    main_sub_checked_num = list(map(int, main_sub_checked))
 
 
-    # if request.is_ajax():      
-    #     try:
+    if request.is_ajax():      
+        try:
 
-    print("AJAX REQ")
-    request.session['eventID'] = eventidnum
-    request.session['start'] = start
-    request.session['main_cat_checked'] = main_cat_checked_num
+            print("AJAX REQ")
 
-    print("session eventid: ", request.session.get('eventID'))
-    print("session start: ", request.session.get('start'))
-    print("session main_cat_checked: ", request.session.get('main_cat_checked'))
+            request.session['main_cat_checked'] = main_cat_checked_num
+            request.session['main_cat_indeterminate'] = main_cat_indeterminate_num
+            request.session['main_sub_checked'] = main_sub_checked_num
 
-    print("END UPDATE_SESSION")
+            print("session main_cat_checked: ", request.session.get('main_cat_checked'))
 
-    #     except KeyError:
-    #         return HttpResponse('Error')
-    # else:
-    #     raise Http404
+            print("END UPDATE_SESSION")
+
+        except KeyError:
+            return HttpResponse('Error')
+    else:
+        raise Http404
     
     return HttpResponse("Success")
 
@@ -54,14 +49,16 @@ def all_products(request):
 
     print("ALL_PRODUCTS")
     
-    eventID = request.session.get('eventID', {})
-    start = request.session.get('start', {})
+    # eventID = request.session.get('eventID', {})
+    # start = request.session.get('start', {})
     main_cat_checked = request.session.get('main_cat_checked', {})
-    print("eventID: ", eventID)
-    print("start: ", start)
+    # print("eventID: ", eventID)
+    # print("start: ", start)
 
+    main_cat_indeterminate = request.session.get('main_cat_indeterminate', {})
+    main_sub_checked = request.session.get('main_sub_checked', {})
 
-    request.session['djtest'] = 30
+    # request.session['djtest'] = 30
 
     # for m in list(mycars.keys()):
     #     print("loop", m)
@@ -116,8 +113,10 @@ def all_products(request):
         'search_term': query,
         'current_categories': categories,
         'current_sorting': current_sorting,
-        'session_list': eventID,
+        # 'session_list': eventID,
         'main_cat_checked': main_cat_checked,
+        'main_cat_indeterminate': main_cat_indeterminate,
+        'main_sub_checked': main_sub_checked,
     }
 
     return render(request, 'products/products.html', context)

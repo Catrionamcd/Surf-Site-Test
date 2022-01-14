@@ -12,7 +12,7 @@
             
             <input class="form-check-input ml-1" type="checkbox" name="main-cat" id="main-cat-{{ category_item.id }}" value="{{ category_item.id }}">
             <a class="logo-font font-weight-bold nav-link text-black mr-5 ml-4 {% if category_item.subcat_count > 0 %} dropdown-toggle {% endif %}" 
-                href="#" id="{{ category_item.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                id="{{ category_item.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{ category_item.friendly_name }}  
             </a>
             
@@ -22,8 +22,8 @@
             
                 {% for subcategory_item in category_item.subcategory_set.all %}
                 
-                <a href="{% url 'products' %}?category=bed_bath" class="dropdown-item pt-0 mb-0 pb-0">
-                    <input type="checkbox" name="main-sub" id="main-sub-{{ subcategory_item.id }}" value="{{ category_item.id }}-{{ subcategory_item.id }}">
+                <a class="dropdown-item pt-0 mb-0 pb-0">
+                    <input type="checkbox" name="main-sub" id="main-sub-{{ subcategory_item.id }}" value="{{ subcategory_item.id }}">
                     {{ subcategory_item.friendly_name }}
                 </a>
                 
@@ -43,17 +43,23 @@
 <script type="text/javascript">
 
     window.onload = function() {
-        console.log("page load: ", "{{ main_cat_checked }}");
-        // var main_cat_checked = json("{{ main_cat_checked }}")
-        var main_cat_checked = JSON.parse('{{ main_cat_checked | escapejs }}');
-        console.log("MAIN ", main_cat_checked)
-        // var main_cat_checked = {{ main_cat_checked }};
-        // for (chkBox in main_cat_checked) {
+
+        var main_cat_checked = JSON.parse('{{ main_cat_checked }}');
         for (i = 0; i < main_cat_checked.length; ++i) {
-            console.log(main_cat_checked[i])
             document.getElementById("main-cat-"+main_cat_checked[i]).checked=true;
         }
+
+        var main_cat_indeterminate = JSON.parse('{{ main_cat_indeterminate }}');
+        for (i = 0; i < main_cat_indeterminate.length; ++i) {
+            document.getElementById("main-cat-"+main_cat_indeterminate[i]).indeterminate=true;
+        }
+
+        var main_sub_checked = JSON.parse('{{ main_sub_checked }}');
+        for (i = 0; i < main_sub_checked.length; ++i) {
+            document.getElementById("main-sub-"+main_sub_checked[i]).checked=true;
+        }        
     };
+
 
     $('input[type="checkbox"]').change(function(e) {
         // Menu checkbox clicked
@@ -100,74 +106,29 @@
 
         // Next get 
 
-        // const checkBoxList =
-        //     document.querySelectorAll('input[name="main-cat"][type="checkbox"]:checked')
-        // console.log("checkBoxList", checkBoxList);
-
         var mainCatChecked = []
         document.querySelectorAll('input[name="main-cat"][type="checkbox"]:checked').forEach(function(element) {
             mainCatChecked.push(element.getAttribute('value'))
-            console.log("GET EL:", element.getAttribute('value'));
         });
-        // mainCatChecked.push('7')
-        // mainCatChecked.push('9')
-        
-        console.log("GOT CHECKED: ", mainCatChecked);
 
+        var mainCatIndeterminate = []
+        document.querySelectorAll('input[name="main-cat"][type="checkbox"]:indeterminate').forEach(function(element) {
+            mainCatIndeterminate.push(element.getAttribute('value'))
+        });
 
+        var mainSubChecked = []
+        document.querySelectorAll('input[name="main-sub"][type="checkbox"]:checked').forEach(function(element) {
+            mainSubChecked.push(element.getAttribute('value'))
+        });
 
-
-
-        // mainCatChecked = []
-        // for (chkBox = 0; chkBox < checkBoxList.length; ++chkBox) {
-        //     console.log("checkBoxItem: --->", chkBox)
-        //     mainCatChecked = mainCatChecked + chkBox.id
-        // }
-
-        const mainCatIndeterminate = document.querySelectorAll('input[name="main-cat"][type="checkbox"]:indeterminate');
-        const mainSubChecked = document.querySelectorAll('input[name="main-sub"][type="checkbox"]:checked');
-
-        console.log("MAIN CAT Check:", mainCatChecked);
-        console.log("MAIN CAT Ind:", mainCatIndeterminate);
-        console.log("MAIN SUB Check:", mainSubChecked);
-
-        const cars = [[3,4], [5,6], [7,8]];
-        const boats = [13, 15, 17];
-        // const cars = [{firstName:"John"}, {lastName:"Doe"}, {age:46}];
-        sessionStorage.setItem('mycars', JSON.stringify(cars));
-        sessionStorage.setItem('myboats', boats);
-        let keys = Object.keys(sessionStorage);
-        for(let key of keys) {
-            console.log("1")
-            console.log(`${key}: ${sessionStorage.getItem(key)}`);
-        }
-
-
-        // let text = "How are you doing today?";
-        // const myArray = text.split(" ");
-
-        // const fruits = ["Banana", "Orange", "Apple", "Mango"];
-        // document.getElementById("demo").innerHTML = fruits.includes("Mangoa");
-        // console.log("key", keys)
-
-        // document.getElementById("main-cat-"+keys[0][1]).checked = true
-
-        // const mycars = JSON.parse(sessionStorage.getItem('mycars'));
-        // console.log("Get mycars: ", mycars);
-        // const myboats = sessionStorage.getItem('myboats');
-        // console.log("Get myboats: ", myboats);
-
-        // const djtest = sessionStorage.getItem('djtest');
-        // console.log("Get djtest: ", djtest);
-
-
-        var eventID = [[95,96],[97,98]];
-        var start = 99;
 
         $.post({
             url: "{% url 'update_session' %}",
-            type: "GET",
-            data: {eventID: eventID, start: start, main_cat_checked: mainCatChecked},
+            headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+            type: "POST",
+            data: {main_cat_checked: mainCatChecked, main_cat_indeterminate: mainCatIndeterminate, main_sub_checked: mainSubChecked},
             success: function(response){},
             complete: function(){},
             error: function (xhr, textStatus, thrownError){
@@ -176,12 +137,8 @@
         });
 
 
-        // location.reload();
-        window.location.href = "";
-
-        // const checkedValues = [
-        //     ...document.querySelectorAll('input[type="checkbox"]:checked')
-        // ].map(check => check.value);        
+        location.reload();
+        // window.location.href = "";      
 
     });
 
