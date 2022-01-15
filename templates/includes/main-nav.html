@@ -6,12 +6,16 @@
             </a>
         </li>
 
-
+        <li class="nav-item">
+            <a class=" font-weight-bold nav-link text-black mr-5">
+                Category
+            </a>
+        </li>
         {% for category_item in categories_list %}      
         <li class="nav-item dropdown">       
             
             <input class="form-check-input ml-1" type="checkbox" name="main-cat" id="main-cat-{{ category_item.id }}" value="{{ category_item.id }}">
-            <a class=" font-weight-bold text-black text-nowrap mr-5 ml-4 {% if category_item.subcat_count > 0 %} dropdown-toggle {% endif %}" 
+            <a class="text-black text-nowrap mr-5 ml-4 {% if category_item.subcat_count > 0 %} dropdown-toggle {% endif %}" 
                 id="{{ category_item.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{ category_item.friendly_name }}  
             </a>
@@ -22,7 +26,7 @@
             
                 {% for subcategory_item in category_item.subcategory_set.all %}
                 
-                <a class="dropdown-item pt-0 mb-0 pb-0">
+                <a class="text-black text-nowrap dropdown-item pt-0 mb-0 pb-0">
                     <input type="checkbox" name="main-sub" id="main-sub-{{ subcategory_item.id }}" value="{{ subcategory_item.id }}">
                     {{ subcategory_item.friendly_name }}
                 </a>
@@ -33,7 +37,39 @@
             {% endif %}
         </li>
         {% endfor %}
-  
+
+        <li class="nav-item">
+            <a class=" font-weight-bold nav-link text-black mr-5">
+                Brand
+            </a>
+        </li>  
+        {% for brand in brands %}      
+        <li class="nav-item dropdown">       
+            
+            <input class="form-check-input ml-1" type="checkbox" name="main-brand" id="main-brand-{{ brand.id }}" value="{{ brand.id }}">
+            <a class="text-black text-nowrap mr-5 ml-4" 
+                id="{{ brand.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ brand.brand_name }}  
+            </a>
+        </li>
+        {% endfor %}
+
+        <li class="nav-item">
+            <a class=" font-weight-bold nav-link text-black mr-5">
+                Colour
+            </a>
+        </li>  
+        {% for colour in colours %}      
+        <li class="nav-item dropdown">       
+            
+            <input class="form-check-input ml-1" type="checkbox" name="main-colour" id="main-colour-{{ colour.id }}" value="{{ colour.id }}">
+            <a class="text-black text-nowrap mr-5 ml-4" 
+                id="{{ colour.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ colour.colour }}  
+            </a>
+        </li>
+        {% endfor %}
+
 
     </ul>
 </div>
@@ -60,6 +96,20 @@
         var sub_checked = JSON.parse('{{ sub_checked }}');
         for (i = 0; i < sub_checked.length; ++i) {
             document.getElementById("main-sub-"+sub_checked[i]).checked=true;
+        }
+    }
+
+    if ("{{ brand_checked }}") {
+        var brand_checked = JSON.parse('{{ brand_checked }}');
+        for (i = 0; i < brand_checked.length; ++i) {
+            document.getElementById("main-brand-"+brand_checked[i]).checked=true;
+        }
+    }
+
+    if ("{{ colour_checked }}") {
+        var colour_checked = JSON.parse('{{ colour_checked }}');
+        for (i = 0; i < colour_checked.length; ++i) {
+            document.getElementById("main-colour-"+colour_checked[i]).checked=true;
         }
     }
 
@@ -113,6 +163,8 @@
         var catChecked = []
         var catIndeterminate = []
         var subChecked = []
+        var brandChecked = []
+        var colourChecked = []
 
         if (menu_clicked[0] == "main") {
             document.querySelectorAll('input[name="main-cat"][type="checkbox"]:checked').forEach(function(element) {
@@ -126,6 +178,14 @@
             document.querySelectorAll('input[name="main-sub"][type="checkbox"]:checked').forEach(function(element) {
                 subChecked.push(element.getAttribute('value'))
             });
+
+            document.querySelectorAll('input[name="main-brand"][type="checkbox"]:checked').forEach(function(element) {
+                brandChecked.push(element.getAttribute('value'))
+            });
+            
+            document.querySelectorAll('input[name="main-colour"][type="checkbox"]:checked').forEach(function(element) {
+                colourChecked.push(element.getAttribute('value'))
+            });
         } else {
             document.querySelectorAll('input[name="mob-cat"][type="checkbox"]:checked').forEach(function(element) {
                 catChecked.push(element.getAttribute('value'))
@@ -138,6 +198,14 @@
             document.querySelectorAll('input[name="mob-sub"][type="checkbox"]:checked').forEach(function(element) {
                 subChecked.push(element.getAttribute('value'))
             });
+
+            document.querySelectorAll('input[name="mob-brand"][type="checkbox"]:checked').forEach(function(element) {
+                brandChecked.push(element.getAttribute('value'))
+            });
+
+            document.querySelectorAll('input[name="mob-colour"][type="checkbox"]:checked').forEach(function(element) {
+                colourChecked.push(element.getAttribute('value'))
+            });
         }
 
 
@@ -147,7 +215,8 @@
                     "X-CSRFToken": "{{ csrf_token }}"
                 },
             type: "POST",
-            data: {cat_checked: catChecked, cat_indeterminate: catIndeterminate, sub_checked: subChecked},
+            data: {cat_checked: catChecked, cat_indeterminate: catIndeterminate, sub_checked: subChecked, 
+                    brand_checked: brandChecked, colour_checked: colourChecked},
             success: function(response){},
             complete: function(){},
             error: function (xhr, textStatus, thrownError){

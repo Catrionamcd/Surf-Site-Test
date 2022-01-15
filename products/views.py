@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.db.models.functions import Lower
-from .models import Product, Category, SubCategory
+from .models import Product, Category, SubCategory, ProductInventory, Brand, Colour
 from .forms import ProductForm
 from checkout.models import Order, OrderLineItem
 
@@ -22,11 +22,20 @@ def update_session(request):
     sub_checked = request.POST.getlist('sub_checked[]')
     sub_checked_num = list(map(int, sub_checked))
 
+    brand_checked = request.POST.getlist('brand_checked[]')
+    brand_checked_num = list(map(int, brand_checked))
+
+    colour_checked = request.POST.getlist('colour_checked[]')
+    colour_checked_num = list(map(int, colour_checked))
+
+
     if request.is_ajax():      
         try:
             request.session['cat_checked'] = cat_checked_num
             request.session['cat_indeterminate'] = cat_indeterminate_num
             request.session['sub_checked'] = sub_checked_num
+            request.session['brand_checked'] = brand_checked_num
+            request.session['colour_checked'] = colour_checked_num
         except KeyError:
             return HttpResponse('Error')
     else:
@@ -40,20 +49,22 @@ def all_products(request):
 
     categories_list = Category.objects.all().annotate(subcat_count=Count('subcategory'))
     subcategories_list = SubCategory.objects.all()
+    brands = Brand.objects.all()
+    colours = Colour.objects.all()
 
-    cat_checked = request.session.get('cat_checked', {})
-    cat_indeterminate = request.session.get('cat_indeterminate', {})
-    sub_checked = request.session.get('sub_checked', {})
+    cat_checked = request.session.get('cat_checked', [])
+    cat_indeterminate = request.session.get('cat_indeterminate', [])
+    sub_checked = request.session.get('sub_checked', [])
+    brand_checked = request.session.get('brand_checked', [])
+    colour_checked = request.session.get('colour_checked', [])
 
-    # if no categories or sub-categories slected for view
-    print("CAT_CHECKED: ", cat_checked)
-    
-    
-    if cat_checked == [] and sub_checked == []:
-        print("IN EMPTY")
-        # then select all categories and sub-categories for view (except gift cards)
+    # if NO categories, sub-categories, brands, or colours retrieved from session
+    if cat_checked == [] and sub_checked == [] and brand_checked == [] and colour_checked == []:
+        # then select all categories, sub-categories, brands and colours for view (except gift cards)
         cat_checked = list(categories_list.exclude(giftcard_category=True).values_list('id', flat=True))
         sub_checked = list(subcategories_list.exclude(category__giftcard_category=True).values_list('id', flat=True))
+        brand_checked = list(brands.values_list('id', flat=True))
+        colour_checked = list(colours_list.values_list('id', flat=True))
 
 
     # """ First get full product list and annotate the sale price of each item """
@@ -100,6 +111,8 @@ def all_products(request):
     context = {
         'categories_list': categories_list,
         # 'subcategories_list': subcategories_list,
+        'brands': brands,
+        'colours': colours,
         'products': products,
         'search_term': query,
         'current_categories': categories,
@@ -107,6 +120,8 @@ def all_products(request):
         'cat_checked': cat_checked,
         'cat_indeterminate': cat_indeterminate,
         'sub_checked': sub_checked,
+        'brand_checked': brand_checked,
+        'colour_checked': colour_checked
     }
 
     return render(request, 'products/products.html', context)
