@@ -1,6 +1,6 @@
-<div class="collapse navbar-collapse" id="main-nav">
-    <ul class="navbar-nav w-auto mx-auto">
-        <li class="nav-item d-block d-md-none">
+<div class="list-unstyled" id="main-nav">
+    <ul class="navbar-nav list-unstyled components">
+        <li class="nav-item">
             <a class="logo-font font-weight-bold nav-link text-black mr-5" href="{% url 'home' %}" id="home-link">
                 Home
             </a>
@@ -11,7 +11,7 @@
         <li class="nav-item dropdown">       
             
             <input class="form-check-input ml-1" type="checkbox" name="main-cat" id="main-cat-{{ category_item.id }}" value="{{ category_item.id }}">
-            <a class="logo-font font-weight-bold nav-link text-black mr-5 ml-4 {% if category_item.subcat_count > 0 %} dropdown-toggle {% endif %}" 
+            <a class=" font-weight-bold text-black text-nowrap mr-5 ml-4 {% if category_item.subcat_count > 0 %} dropdown-toggle {% endif %}" 
                 id="{{ category_item.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{ category_item.friendly_name }}  
             </a>
@@ -40,23 +40,28 @@
 
 <script type="text/javascript">
 
-    window.onload = function() {
-
-        var main_cat_checked = JSON.parse('{{ main_cat_checked }}');
-        for (i = 0; i < main_cat_checked.length; ++i) {
-            document.getElementById("main-cat-"+main_cat_checked[i]).checked=true;
+    if ("{{ cat_checked }}") {
+        console.log("CAT ON")
+        console.log("{{ cat_checked }}")
+        var cat_checked = JSON.parse('{{ cat_checked }}');
+        for (i = 0; i < cat_checked.length; ++i) {
+            document.getElementById("main-cat-"+cat_checked[i]).checked=true;
         }
+    }
 
-        var main_cat_indeterminate = JSON.parse('{{ main_cat_indeterminate }}');
-        for (i = 0; i < main_cat_indeterminate.length; ++i) {
-            document.getElementById("main-cat-"+main_cat_indeterminate[i]).indeterminate=true;
+    if ("{{ cat_indeterminate }}") {
+        var cat_indeterminate = JSON.parse('{{ cat_indeterminate }}');
+        for (i = 0; i < cat_indeterminate.length; ++i) {
+            document.getElementById("main-cat-"+cat_indeterminate[i]).indeterminate=true;
         }
+    }
 
-        var main_sub_checked = JSON.parse('{{ main_sub_checked }}');
-        for (i = 0; i < main_sub_checked.length; ++i) {
-            document.getElementById("main-sub-"+main_sub_checked[i]).checked=true;
-        }        
-    };
+    if ("{{ sub_checked }}") {
+        var sub_checked = JSON.parse('{{ sub_checked }}');
+        for (i = 0; i < sub_checked.length; ++i) {
+            document.getElementById("main-sub-"+sub_checked[i]).checked=true;
+        }
+    }
 
 
     $('input[type="checkbox"]').change(function(e) {
@@ -102,22 +107,38 @@
 
         checkSiblings(container);
 
+
+        const menu_clicked = this.id.split("-");
         // Next get 
+        var catChecked = []
+        var catIndeterminate = []
+        var subChecked = []
 
-        var mainCatChecked = []
-        document.querySelectorAll('input[name="main-cat"][type="checkbox"]:checked').forEach(function(element) {
-            mainCatChecked.push(element.getAttribute('value'))
-        });
+        if (menu_clicked[0] == "main") {
+            document.querySelectorAll('input[name="main-cat"][type="checkbox"]:checked').forEach(function(element) {
+                catChecked.push(element.getAttribute('value'))
+            });
+            
+            document.querySelectorAll('input[name="main-cat"][type="checkbox"]:indeterminate').forEach(function(element) {
+                catIndeterminate.push(element.getAttribute('value'))
+            });
+            
+            document.querySelectorAll('input[name="main-sub"][type="checkbox"]:checked').forEach(function(element) {
+                subChecked.push(element.getAttribute('value'))
+            });
+        } else {
+            document.querySelectorAll('input[name="mob-cat"][type="checkbox"]:checked').forEach(function(element) {
+                catChecked.push(element.getAttribute('value'))
+            });
 
-        var mainCatIndeterminate = []
-        document.querySelectorAll('input[name="main-cat"][type="checkbox"]:indeterminate').forEach(function(element) {
-            mainCatIndeterminate.push(element.getAttribute('value'))
-        });
+            document.querySelectorAll('input[name="mob-cat"][type="checkbox"]:indeterminate').forEach(function(element) {
+                catIndeterminate.push(element.getAttribute('value'))
+            });
 
-        var mainSubChecked = []
-        document.querySelectorAll('input[name="main-sub"][type="checkbox"]:checked').forEach(function(element) {
-            mainSubChecked.push(element.getAttribute('value'))
-        });
+            document.querySelectorAll('input[name="mob-sub"][type="checkbox"]:checked').forEach(function(element) {
+                subChecked.push(element.getAttribute('value'))
+            });
+        }
 
 
         $.post({
@@ -126,7 +147,7 @@
                     "X-CSRFToken": "{{ csrf_token }}"
                 },
             type: "POST",
-            data: {main_cat_checked: mainCatChecked, main_cat_indeterminate: mainCatIndeterminate, main_sub_checked: mainSubChecked},
+            data: {cat_checked: catChecked, cat_indeterminate: catIndeterminate, sub_checked: subChecked},
             success: function(response){},
             complete: function(){},
             error: function (xhr, textStatus, thrownError){
@@ -134,9 +155,7 @@
             }
         });
 
-
-        location.reload();
-        // window.location.href = "";      
+        location.reload();     
 
     });
 

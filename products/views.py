@@ -13,20 +13,20 @@ from checkout.models import Order, OrderLineItem
 
 def update_session(request):
 
-    main_cat_checked = request.POST.getlist('main_cat_checked[]')
-    main_cat_checked_num = list(map(int, main_cat_checked))
+    cat_checked = request.POST.getlist('cat_checked[]')
+    cat_checked_num = list(map(int, cat_checked))
 
-    main_cat_indeterminate = request.POST.getlist('main_cat_indeterminate[]')
-    main_cat_indeterminate_num = list(map(int, main_cat_indeterminate))
+    cat_indeterminate = request.POST.getlist('cat_indeterminate[]')
+    cat_indeterminate_num = list(map(int, cat_indeterminate))
 
-    main_sub_checked = request.POST.getlist('main_sub_checked[]')
-    main_sub_checked_num = list(map(int, main_sub_checked))
+    sub_checked = request.POST.getlist('sub_checked[]')
+    sub_checked_num = list(map(int, sub_checked))
 
     if request.is_ajax():      
         try:
-            request.session['main_cat_checked'] = main_cat_checked_num
-            request.session['main_cat_indeterminate'] = main_cat_indeterminate_num
-            request.session['main_sub_checked'] = main_sub_checked_num
+            request.session['cat_checked'] = cat_checked_num
+            request.session['cat_indeterminate'] = cat_indeterminate_num
+            request.session['sub_checked'] = sub_checked_num
         except KeyError:
             return HttpResponse('Error')
     else:
@@ -41,20 +41,23 @@ def all_products(request):
     categories_list = Category.objects.all().annotate(subcat_count=Count('subcategory'))
     subcategories_list = SubCategory.objects.all()
 
-    main_cat_checked = request.session.get('main_cat_checked', {})
-    main_cat_indeterminate = request.session.get('main_cat_indeterminate', {})
-    main_sub_checked = request.session.get('main_sub_checked', {})
+    cat_checked = request.session.get('cat_checked', {})
+    cat_indeterminate = request.session.get('cat_indeterminate', {})
+    sub_checked = request.session.get('sub_checked', {})
 
     # if no categories or sub-categories slected for view
-    if main_cat_checked == [] and main_sub_checked == []:
+    print("CAT_CHECKED: ", cat_checked)
+    
+    
+    if cat_checked == [] and sub_checked == []:
+        print("IN EMPTY")
         # then select all categories and sub-categories for view (except gift cards)
-        main_cat_checked = list(categories_list.exclude(giftcard_category=True).values_list('id', flat=True))
-        main_sub_checked = list(subcategories_list.exclude(category__giftcard_category=True).values_list('id', flat=True))
+        cat_checked = list(categories_list.exclude(giftcard_category=True).values_list('id', flat=True))
+        sub_checked = list(subcategories_list.exclude(category__giftcard_category=True).values_list('id', flat=True))
 
 
     # """ First get full product list and annotate the sale price of each item """
-    menu_query = Q(category__in=main_cat_checked) | Q(subcategory__in=main_sub_checked)
-    # products = Product.objects.all().filter(category__in=main_cat_checked).filter(category__in=main_sub_checked)
+    menu_query = Q(category__in=cat_checked) | Q(subcategory__in=sub_checked)
     products = Product.objects.all().filter(menu_query)
     # products = Product.objects.all().annotate(sale_price=F('price') / 100 * (100 - F('category__sale_percent')))
 
@@ -101,9 +104,9 @@ def all_products(request):
         'search_term': query,
         'current_categories': categories,
         'current_sorting': current_sorting,
-        'main_cat_checked': main_cat_checked,
-        'main_cat_indeterminate': main_cat_indeterminate,
-        'main_sub_checked': main_sub_checked,
+        'cat_checked': cat_checked,
+        'cat_indeterminate': cat_indeterminate,
+        'sub_checked': sub_checked,
     }
 
     return render(request, 'products/products.html', context)

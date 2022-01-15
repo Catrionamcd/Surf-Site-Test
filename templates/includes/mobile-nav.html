@@ -1,0 +1,61 @@
+<div class="collapse navbar-collapse" id="mobile-nav">
+    <ul class="navbar-nav w-auto mx-auto d-block d-lg-none">
+        <li class="nav-item d-block d-md-none">
+            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="{% url 'home' %}" id="home-link">
+                Home
+            </a>
+        </li>
+        {% for category_item in categories_list %}      
+        <li class="nav-item dropdown">       
+            
+            <input class="form-check-input ml-1" type="checkbox" name="mob-cat" id="mob-cat-{{ category_item.id }}" value="{{ category_item.id }}">
+            <a class="font-weight-bold text-black text-nowrap mr-5 ml-4 {% if category_item.subcat_count > 0 %} dropdown-toggle {% endif %}" 
+                href="#" id="{{ category_item.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ category_item.friendly_name }}  
+            </a>
+            
+            {% if category_item.subcat_count > 0 %}
+            
+            <div class="dropdown-menu border-0 mt-0 pt-0 mb-0 pb-0" aria-labelledby="homeware-link">
+            
+                {% for subcategory_item in category_item.subcategory_set.all %}
+                
+                <a href="{% url 'products' %}?category=bed_bath" class="dropdown-item pt-0 mb-0 pb-0">
+                    <input type="checkbox" name="mob-sub" id="mob-sub-{{ subcategory_item.id }}" value="{{ subcategory_item.id }}">
+                    {{ subcategory_item.friendly_name }}
+                </a>
+                
+                {% endfor %}
+            
+            </div>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script type="text/javascript">
+
+    if ("{{ cat_checked }}") {
+        var cat_checked = JSON.parse('{{ cat_checked }}');
+        for (i = 0; i < cat_checked.length; ++i) {
+            document.getElementById("mob-cat-"+cat_checked[i]).checked=true;
+        }
+    }
+
+    if ("{{ cat_indeterminate }}") {
+        var cat_indeterminate = JSON.parse('{{ cat_indeterminate }}');
+        for (i = 0; i < cat_indeterminate.length; ++i) {
+            document.getElementById("mob-cat-"+cat_indeterminate[i]).indeterminate=true;
+        }
+    }
+
+    if ("{{ sub_checked }}") {
+        var sub_checked = JSON.parse('{{ sub_checked }}');
+        for (i = 0; i < sub_checked.length; ++i) {
+            document.getElementById("mob-sub-"+sub_checked[i]).checked=true;
+        }
+    }
+    // };
+
+</script>

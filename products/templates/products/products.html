@@ -24,7 +24,15 @@
             </div>
         </div>
         <div class="row">
-            <div class="product-container col-10 offset-1">
+            <div class="col-2" id="sidebar">
+                <nav class="col-2 navbar d-none d-md-block navbar-default navbar-light w-100 h-100">
+                    <button class="navbar-toggler" type="button" hidden data-toggle="collapse" data-target="#main-nav" aria-controls="main-nav" aria-expanded="true" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    {% include 'includes/main-nav.html' %}
+                </nav>
+            </div>
+            <div class="product-container col-12 col-md-10">
                 <div class="row mt-1 mb-2">
                     <div class="col-12 col-md-6 my-auto order-md-last d-flex justify-content-center justify-content-md-end">
                         <div class="sort-select-wrapper w-50">
