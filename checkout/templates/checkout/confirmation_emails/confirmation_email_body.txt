@@ -12,9 +12,9 @@ Order Date: {{ order.date }}
         - {{ giftcard.giftcard_code }}
 {% endfor %} {% endif %} {% endfor %}
 
-Order Total: ${{ order.order_total }}
-Delivery: ${{ order.delivery_cost }}
-Grand Total: ${{ order.grand_total }}
+Order Total: €{{ order.order_total }}
+Delivery: €{{ order.delivery_cost }}
+Grand Total: €{{ order.grand_total }}
 
 Your order will be shipped to {{ order.street_address1 }} in {{ order.town_or_city }}, {{ order.country }}.
 

@@ -14,8 +14,8 @@
         {% for category_item in categories_list %}      
         <li class="nav-item dropdown">       
             
-            <input class="form-check-input ml-1" type="checkbox" name="main-cat" id="main-cat-{{ category_item.id }}" value="{{ category_item.id }}">
-            <a class="text-black text-nowrap mr-5 ml-4 {% if category_item.subcat_count > 0 %} dropdown-toggle {% endif %}" 
+            <input class="form-check-input ml-1 main-nav-checkbox" type="checkbox" name="main-cat" id="main-cat-{{ category_item.id }}" value="{{ category_item.id }}">
+            <a class="text-black text-nowrap  ml-4 {% if category_item.subcat_count > 0 %} dropdown-toggle {% endif %}" 
                 id="{{ category_item.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{ category_item.friendly_name }}  
             </a>
@@ -27,7 +27,7 @@
                 {% for subcategory_item in category_item.subcategory_set.all %}
                 
                 <a class="text-black text-nowrap dropdown-item pt-0 mb-0 pb-0">
-                    <input type="checkbox" name="main-sub" id="main-sub-{{ subcategory_item.id }}" value="{{ subcategory_item.id }}">
+                    <input class="main-nav-checkbox" type="checkbox" name="main-sub" id="main-sub-{{ subcategory_item.id }}" value="{{ subcategory_item.id }}">
                     {{ subcategory_item.friendly_name }}
                 </a>
                 
@@ -75,6 +75,8 @@
 </div>
 
 <script type="text/javascript">
+
+    // window.onresize = reportWindowSize;
 
     if ("{{ cat_checked }}") {
         console.log("CAT ON")
@@ -227,5 +229,21 @@
         location.reload();     
 
     });
+
+    // function reportWindowSize() {
+
+    //     var w = window.innerWidth;
+    //     console.log(w);
+
+    //     // document.querySelector('style').textContent +=
+    //     //     "@media screen and (min-width:1200px) { #main-nav { font-size: 0.8rem; text-align:right;}}"
+
+    //     // document.querySelector('style'). +=
+    //     //     "@media screen and (min-width:1200px) { .main-nav-checkbox { width: 400px; height: 400px; }}"
+    //     // transform: scale(2);
+
+    //     // document.querySelector('input[name="main-cat"][type="checkbox"]') +=
+    //     //     "@media screen and (min-width:1200px) { .main-nav-checkbox { width: 400px; height: 400px; }}"
+    // }
 
 </script>

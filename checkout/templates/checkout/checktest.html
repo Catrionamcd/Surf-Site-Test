@@ -54,9 +54,9 @@
                         </div>
                         <div class="col-3 text-right">
                             {% if item.product.category.sale_percent > 0 %}
-                                <p class="my-0 small text-muted">${{ item.product.get_sale_price | calc_subtotal:item.quantity }}</p>
+                                <p class="my-0 small text-muted">€{{ item.product.get_sale_price | calc_subtotal:item.quantity }}</p>
                             {% else %}
-                                <p class="my-0 small text-muted">${{ item.product.price | calc_subtotal:item.quantity }}</p>
+                                <p class="my-0 small text-muted">€{{ item.product.price | calc_subtotal:item.quantity }}</p>
                             {% endif %}
                         </div>
                     </div>

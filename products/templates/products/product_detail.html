@@ -30,10 +30,10 @@
                 <div class="product-details-container mb-5 mt-md-5">
                     <p class="mb-0">{{ product.name }}</p>
                     {% if product.category.sale_percent > 0 %}
-                        <p class="lead mb-0 text-left font-weight-bold"><del>Was ${{ product.price }}</del></p>
-                        <p class="lead mb-0 text-left font-weight-bold" style="color:red">Now ${{ product.get_sale_price }}</p>
+                        <p class="lead mb-0 text-left font-weight-bold"><del>Was €{{ product.price }}</del></p>
+                        <p class="lead mb-0 text-left font-weight-bold" style="color:red">Now €{{ product.get_sale_price }}</p>
                     {% else %}
-                        <p class="lead mb-0 text-left font-weight-bold">${{ product.price }}</p>
+                        <p class="lead mb-0 text-left font-weight-bold">€{{ product.price }}</p>
                     {% endif %}
                     {% if product.category %}
                     <p class="small mt-1 mb-0">
@@ -49,8 +49,10 @@
                     {% endif %}
                     {% if request.user.is_superuser %}
                         <small class="ml-3">
-                            <a href="{% url 'edit_product' product.id %}">Edit</a> | 
+                            <a href="{% url 'edit_product' product.id %}">Edit</a> 
+                            {% if product. %}| 
                             <a class="text-danger" href="{% url 'delete_product' product.id %}">Delete</a>
+                            {% endif %}
                         </small>
                     {% endif %}
                     <p class="mt-3">{{ product.description }}</p>
@@ -98,6 +100,41 @@
                                 </div>
                             </div>
 
+                            <button id="tempbutton" autocomplete="off">temp</button>
+
+                            <input type="radio" class="btn-check" name="options-outlined" id="success-outlined" autocomplete="off" onclick="myButtonCheck(this)" checked>
+                            <label class="btn btn-outline-success" for="success-outlined" id="testlabel">Checked success radio</label>
+                            
+                            <input type="radio" class="btn-check" name="options-outlined" id="danger-outlined" autocomplete="off" onclick="myButtonCheck(this)">
+                            <label class="btn btn-outline-danger" for="danger-outlined">Danger radio</label>
+                            
+                            <td style="margin-bottom:0px; padding-bottom: 0px;font-size=12px;vertical-align:bottom;">
+                                <div class="btn-group" data-toggle="buttons" id="topButtonDiv" >
+                                    <button type="button" class="btn btn-primary" id="home1">Home1
+                                    <input type="radio" id="radio1" ></button>
+                                    <button type="button" class="btn btn-primary" id="home2">Home2
+                                    <input type="radio" id="radio2" > </button>
+                                    <button type="button" class="btn btn-primary" id="home3">Home3
+                                    <input  type="radio" id="radio7"> </button>                
+                                 </div>
+                            </td>
+
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                <button type="button" class="btn btn-primary" id="hatchback" style="height:100px" onclick="myButtonCheck(this)">
+                                
+                                <input type="image" src="{{ product.image.url }}" name="submit"/> 
+                                <input type="radio" name="options" id="hatchback" autocomplete="off" checked> Hatchback
+                                </button>
+                             
+                                <button type="button" class="btn btn-primary" id="sedan" background: url('/image/btn.png') no-repeat;>
+                                <input type="radio" name="options" id="sedan" autocomplete="off"> Sedan
+                                </button>
+                             
+                                <button type="button" class="btn btn-primary" id="suv">
+                                <input type="radio" name="options" id="suv" autocomplete="off"> SUV
+                                </button>
+                             </div>
+                            
                             <div class="col{% if s %}-12 mt-2{% endif %}">
                                 <a href="{% url 'products' %}" class="btn btn-outline-black rounded-0 mt-5">
                                     <span class="icon">
@@ -131,6 +168,71 @@
         {% endif %}
 
     </div>
+
+    <script type="text/javascript">
+        function myButtonCheck(el) {
+
+            // var checked = $(this).prop("checked")
+            console.log("Manual ", event.target.id);
+            var label = document.getElementById("testlabel");
+            label.style.backgroundImage = 'url(https://s7d9.scene7.com/is/image/JCPenney/DP0709201205510679M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp)';
+            // console.log(checked)
+            hatchback = document.getElementById("hatchback").checked;
+            console.log("HATCHBACK: ", hatchback)
+            
+            sedan = document.getElementById("sedan").checked;
+            console.log("SEDAN: ", sedan)
+            
+            suv = document.getElementById("suv").checked;
+            console.log("SUV: ", suv)
+
+            success_outlined = document.getElementById("success-outlined").checked;
+            console.log("Succ Out: ", success_outlined)
+
+            danger_outlined = document.getElementById("danger-outlined").checked;
+            console.log("Dang Out: ", danger_outlined)
+
+            home1 = document.getElementById("home1").checked;
+            console.log("home1: ", home1)
+            
+            home2 = document.getElementById("home2").checked;
+            console.log("home2: ", home2)
+            
+            home3 = document.getElementById("home3").checked;
+            console.log("home3: ", home3)
+        }
+
+        $("button").click(function() {
+            console.log("Automatic ", event.target.id)
+            
+            hatchback = document.getElementById("hatchback").checked;
+            console.log("HATCHBACK: ", hatchback)
+            
+            sedan = document.getElementById("sedan").checked;
+            console.log("SEDAN: ", sedan)
+            
+            suv = document.getElementById("suv").checked;
+            console.log("SUV: ", suv)
+
+            success_outlined = document.getElementById("success-outlined").checked;
+            console.log("Succ Out: ", success_outlined)
+
+            danger_outlined = document.getElementById("danger-outlined").checked;
+            console.log("Dang Out: ", danger_outlined)
+
+            home1 = document.getElementById("home1").checked;
+            console.log("home1: ", home1)
+            
+            home2 = document.getElementById("home2").checked;
+            console.log("home2: ", home2)
+            
+            home3 = document.getElementById("home3").checked;
+            console.log("home3: ", home3)
+            // $('#GFG_DOWN').text("ID = " + t);
+        });
+
+    </script>
+
 {% endblock %}
 {% block postloadjs %}
 {{ block.super }}
