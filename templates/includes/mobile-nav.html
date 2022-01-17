@@ -45,7 +45,6 @@
         </li>  
         {% for brand in brands %}      
         <li class="nav-item dropdown">       
-            
             <input class="form-check-input ml-1" type="checkbox" name="mob-brand" id="mob-brand-{{ brand.id }}" value="{{ brand.id }}">
             <a class="text-black text-nowrap mr-5 ml-4" 
                 id="{{ brand.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -61,11 +60,25 @@
         </li>  
         {% for colour in colours %}      
         <li class="nav-item dropdown">       
-            
             <input class="text-black text-nowrap form-check-input ml-1" type="checkbox" name="mob-colour" id="mob-colour-{{ colour.id }}" value="{{ colour.id }}">
             <a class="text-black text-nowrap mr-5 ml-4" 
                 id="{{ colour.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{ colour.colour }}  
+            </a>
+        </li>
+        {% endfor %}
+
+        <li class="nav-item">
+            <a class=" font-weight-bold nav-link text-black mr-5">
+                Gender
+            </a>
+        </li>  
+        {% for gender in genders %}      
+        <li class="nav-item dropdown">       
+            <input class="form-check-input ml-1" type="checkbox" name="mob-gender" id="mob-gender-{{ gender.0 }}" value="{{ gender.0 }}">
+            <a class="text-black text-nowrap mr-5 ml-4" 
+                id="{{ gender.0 }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ gender.1 }}  
             </a>
         </li>
         {% endfor %}
@@ -107,6 +120,13 @@
         var colour_checked = JSON.parse('{{ colour_checked }}');
         for (i = 0; i < colour_checked.length; ++i) {
             document.getElementById("mob-colour-"+colour_checked[i]).checked=true;
+        }
+    }
+
+    if ("{{ gender_checked }}") {
+        var gender_checked = JSON.parse('{{ gender_checked }}');
+        for (i = 0; i < gender_checked.length; ++i) {
+            document.getElementById("mob-gender-"+gender_checked[i]).checked=true;
         }
     }
 

@@ -44,10 +44,10 @@ class Product(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     has_sizes = models.BooleanField(default=False, null=True, blank=True)
     has_gender = models.BooleanField(default=False, null=True, blank=True)
-    MALE = 'M'
-    FEMALE = 'F'
-    JMALE = 'JM'
-    JFEMALE = 'JF'
+    MALE = '1'
+    FEMALE = '2'
+    JMALE = '3'
+    JFEMALE = '4'
     GENDER_CHOICES = [
         (MALE, 'Male'),
         (FEMALE, 'Female'),

@@ -29,6 +29,8 @@ def update_session(request):
     colour_checked = request.POST.getlist('colour_checked[]')
     colour_checked_num = list(map(int, colour_checked))
 
+    gender_checked = request.POST.getlist('gender_checked[]')
+    gender_checked_num = list(map(int, gender_checked))
 
     if request.is_ajax():      
         try:
@@ -37,6 +39,7 @@ def update_session(request):
             request.session['sub_checked'] = sub_checked_num
             request.session['brand_checked'] = brand_checked_num
             request.session['colour_checked'] = colour_checked_num
+            request.session['gender_checked'] = gender_checked_num
         except KeyError:
             return HttpResponse('Error')
     else:
@@ -52,26 +55,33 @@ def all_products(request):
     subcategories_list = SubCategory.objects.all()
     brands = Brand.objects.all()
     colours = Colour.objects.all()
+    genders = Product.gender.field.choices
 
     cat_checked = request.session.get('cat_checked', [])
     cat_indeterminate = request.session.get('cat_indeterminate', [])
     sub_checked = request.session.get('sub_checked', [])
     brand_checked = request.session.get('brand_checked', [])
     colour_checked = request.session.get('colour_checked', [])
+    gender_checked = request.session.get('gender_checked', [])
 
     # if NO categories, sub-categories, brands, or colours retrieved from session
-    if cat_checked == [] and sub_checked == [] and brand_checked == [] and colour_checked == []:
+    if cat_checked == [] and sub_checked == [] and brand_checked == [] and colour_checked == [] and gender_checked == []:
         # then select all categories, sub-categories, brands and colours for view (except gift cards)
         cat_checked = list(categories_list.exclude(giftcard_category=True).values_list('id', flat=True))
         sub_checked = list(subcategories_list.exclude(category__giftcard_category=True).values_list('id', flat=True))
         brand_checked = list(brands.values_list('id', flat=True))
-        colour_checked = list(colours_list.values_list('id', flat=True))
+        colour_checked = list(colours.values_list('id', flat=True))   
+        gender_checked_string = list([gender[0] for gender in genders])
+        gender_checked = list(map(int, gender_checked_string))
+    # print("ALL GENDER: ", gender_checked)
 
     # """ First get full product list and annotate the sale price of each item """                
-    products = Product.objects.all().exclude(obsolete=True).filter(
-        Q(category__in=cat_checked) | Q(subcategory__in=sub_checked),
-        Q(brand__in=brand_checked)
-    ).annotate(order_count=Count('orderlineitem'))
+    products = Product.objects.all().exclude(obsolete=True
+        ).exclude(Q(has_gender=True), ~Q(gender__in=gender_checked)
+        ).filter(
+            Q(category__in=cat_checked) | Q(subcategory__in=sub_checked),
+            Q(brand__in=brand_checked)
+        ).annotate(order_count=Count('orderlineitem'))
     # products = Product.objects.all().annotate(sale_price=F('price') / 100 * (100 - F('category__sale_percent')))
 
     query = None
@@ -120,6 +130,7 @@ def all_products(request):
         # 'subcategories_list': subcategories_list,
         'brands': brands,
         'colours': colours,
+        'genders': genders,
         'products': page_obj,
         'product_count': product_count,
         'search_term': query,
@@ -130,6 +141,7 @@ def all_products(request):
         'sub_checked': sub_checked,
         'brand_checked': brand_checked,
         'colour_checked': colour_checked,
+        'gender_checked': gender_checked,
         'is_paginated': 8,
         'paginate_by': 8
     }
@@ -176,7 +188,6 @@ def product_detail(request, product_id):
     """ if orders found for this product hide Admin product delete option in product page """ 
     product_has_no_orders = True
     if orders_with_this_product:
-        print("HAS ORDERS")
         product_has_no_orders = False
 
     # print(len(each_product_count_desc))
