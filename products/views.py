@@ -142,10 +142,8 @@ def all_products(request):
         'brand_checked': brand_checked,
         'colour_checked': colour_checked,
         'gender_checked': gender_checked,
-        'is_paginated': 8,
-        'paginate_by': 8
     }
-    paginate_by = 8
+
     return render(request, 'products/products.html', context)
  
 

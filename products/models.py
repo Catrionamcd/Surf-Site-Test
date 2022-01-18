@@ -89,7 +89,7 @@ class ProductInventory(models.Model):
 
     product = models.ForeignKey('Product', null=True, blank=True,
                                 on_delete=models.SET_NULL)
-    colour = models.ForeignKey('Colour', null=True, blank=True,
+    product_colour = models.ForeignKey('ProductColour', null=True, blank=True,
                                on_delete=models.SET_NULL)
 
     XTRASMALL = 'XS'
@@ -110,12 +110,11 @@ class ProductInventory(models.Model):
         blank=True,
         choices=SIZE_CHOICES,
     )
-    image_url = models.URLField(max_length=1024, null=True, blank=True)
-    image = models.ImageField(null=True, blank=True)
+
     quantity = models.IntegerField(null=False, blank=False, default=0)
 
     def __str__(self):
-        return f'Product: {self.product}, Colour: {self.colour}, \
+        return f'Product: {self.product}, Colour: {self.product_colour.colour}, \
             Size: {self.size}, Quantity: {self.quantity}'
 
 
@@ -142,3 +141,17 @@ class Colour(models.Model):
     def __str__(self):
         return self.colour
 
+
+class ProductColour(models.Model):
+    """
+        The Product Colour Model will hold the different Product/Colour varieties for sale
+    """
+
+    product = models.ForeignKey('Product', null=True, blank=True,
+                                on_delete=models.SET_NULL)
+    colour = models.ForeignKey('Colour', null=True, blank=True,
+                               on_delete=models.SET_NULL)
+    image = models.ImageField(null=True, blank=True)
+
+    def __str__(self):
+        return f'Product: {self.product}, Colour: {self.colour}'

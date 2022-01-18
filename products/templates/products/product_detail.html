@@ -120,12 +120,12 @@
                             </td>
 
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                <button type="button" class="btn btn-primary" id="hatchback" style="height:100px" onclick="myButtonCheck(this)">
-                                
-                                <input type="image" src="{{ product.image.url }}" name="submit"/> 
-                                <input type="radio" name="options" id="hatchback" autocomplete="off" checked> Hatchback
+                                <button type="button" class="btn btn-primary" id="hatchback" style="height:100px" onclick="myButtonCheck(this)">              
+                                <input type="radio" style="z-index: 10"  id="hatchback" value="ABC" autocomplete="off" checked> Hatchback
                                 </button>
                              
+                                <label hidden id="GetLink">url(https://s7d9.scene7.com/is/image/JCPenney/DP0709201205510679M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp)</label>
+
                                 <button type="button" class="btn btn-primary" id="sedan" background: url('/image/btn.png') no-repeat;>
                                 <input type="radio" name="options" id="sedan" autocomplete="off"> Sedan
                                 </button>
@@ -170,12 +170,26 @@
     </div>
 
     <script type="text/javascript">
+
+        var theURL = document.getElementById("GetLink"); 
+
+        var label = document.getElementById("hatchback");
+        // label.style.backgroundImage = 'url(https://s7d9.scene7.com/is/image/JCPenney/DP0709201205510679M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp)';
+        label.style.backgroundImage = theURL.innerHTML
+        label.style.backgroundSize = 'contain';
+        label.style.backgroundRepeat = 'no-repeat'
+
+        http://s7d9.scene7.com/is/image/JCPenney/DP0113201617034987M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp
+        
         function myButtonCheck(el) {
 
             // var checked = $(this).prop("checked")
             console.log("Manual ", event.target.id);
             var label = document.getElementById("testlabel");
             label.style.backgroundImage = 'url(https://s7d9.scene7.com/is/image/JCPenney/DP0709201205510679M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp)';
+            label.style.backgroundSize = 'contain';
+            label.style.backgroundRepeat = 'no-repeat'
+            // label.style.resize = = 'both'
             // console.log(checked)
             hatchback = document.getElementById("hatchback").checked;
             console.log("HATCHBACK: ", hatchback)
