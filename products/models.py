@@ -87,6 +87,11 @@ class ProductInventory(models.Model):
         """
         verbose_name_plural = 'Product Inventory'
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['product', 'product_colour', 'size'], name='product_inventory_constraint')
+        ]
+
     product = models.ForeignKey('Product', null=True, blank=True,
                                 on_delete=models.SET_NULL)
     product_colour = models.ForeignKey('ProductColour', null=True, blank=True,
@@ -146,6 +151,11 @@ class ProductColour(models.Model):
     """
         The Product Colour Model will hold the different Product/Colour varieties for sale
     """
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['product', 'colour'], name='product_colour_constraint')
+        ]
 
     product = models.ForeignKey('Product', null=True, blank=True,
                                 on_delete=models.SET_NULL)

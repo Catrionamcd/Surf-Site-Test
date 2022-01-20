@@ -91,9 +91,9 @@
     // window.onresize = reportWindowSize;
 
     if ("{{ cat_checked }}") {
-        console.log("CAT ON")
-        console.log("{{ cat_checked }}")
-        var cat_checked = JSON.parse('{{ cat_checked }}');
+        var cat_checked = JSON.parse('{{ cat_checked }}');  
+        // var cat = '{{ cat_checked }}';
+        // var cat_checked = JSON.parse(cat.replace(&#x27,'"'));
         for (i = 0; i < cat_checked.length; ++i) {
             document.getElementById("main-cat-"+cat_checked[i]).checked=true;
         }

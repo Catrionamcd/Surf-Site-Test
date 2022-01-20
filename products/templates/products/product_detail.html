@@ -11,6 +11,21 @@
 
 {% block content %}
     <div class="overlay"></div>
+    {% for option in product_option_list %}
+        {{ option }} <img class="card-img-top img-fluid" src="{{ option.3 }}" style="height:20px" style="width:20px" alt="{{ product.name }}"><br>
+    {% endfor %}
+    {% for inventory in product_inventory %}
+    {{ inventory }}
+    <br>
+    {{ inventory.product_colour_set.all }}
+    {% endfor %}
+    {% for product_colour_row in product_colour_list %}
+    {{ product_colour_row.0 }} <br> {{ product_colour_row.4 }} <br><br>
+    {% for product_colour_item in product_colour_row %}
+    {{ product_colour_item }}
+    <br>
+    {% endfor %}
+    {% endfor %}
     <div class="container-fluid">
         <div class="row">
             <div class="col-12 col-md-6 col-lg-4 offset-lg-2">
@@ -120,8 +135,8 @@
                             </td>
 
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                <button type="button" class="btn btn-primary" id="hatchback" style="height:100px" onclick="myButtonCheck(this)">              
-                                <input type="radio" style="z-index: 10"  id="hatchback" value="ABC" autocomplete="off" checked> Hatchback
+                                <button type="button" class="btn btn-primary" id="hatchback" qty="22" style="height:100px" onclick="myButtonCheck(this)">              
+                                <input type="radio" style="z-index: 10"  id="hatchback"  value="ABC" autocomplete="off" checked> Hatchback
                                 </button>
                              
                                 <label hidden id="GetLink">url(https://s7d9.scene7.com/is/image/JCPenney/DP0709201205510679M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp)</label>
@@ -171,6 +186,11 @@
 
     <script type="text/javascript">
 
+        console.log("JUST BEFORE")
+        // var productInventoryJSON = JSON.parse('{{ product_inventory_json | safe }}')
+        // console.log("PI_J: ", productInventoryJSON)
+        // var resultObject = search("string 1", productInventoryJSON);
+
         var theURL = document.getElementById("GetLink"); 
 
         var label = document.getElementById("hatchback");
@@ -218,9 +238,12 @@
 
         $("button").click(function() {
             console.log("Automatic ", event.target.id)
+            // console.log("PI_J: ", productInventoryJSON)
             
-            hatchback = document.getElementById("hatchback").checked;
+            var hatchback = document.getElementById("hatchback").checked;
             console.log("HATCHBACK: ", hatchback)
+            var hatchbackQty = document.getElementById("hatchback").getAttribute("qty");
+            console.log("QTY: ", hatchbackQty)
             
             sedan = document.getElementById("sedan").checked;
             console.log("SEDAN: ", sedan)

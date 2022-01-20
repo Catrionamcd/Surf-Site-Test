@@ -2,12 +2,14 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.db.models.functions import Lower
-from .models import Product, Category, SubCategory, ProductInventory, Brand, Colour
+from .models import Product, Category, SubCategory, ProductInventory, Brand, Colour, ProductColour
 from .forms import ProductForm
 from checkout.models import Order, OrderLineItem
 from django.core.paginator import Paginator
+from django.core import serializers
+
 
 # Create your views here.
 
@@ -73,7 +75,8 @@ def all_products(request):
         colour_checked = list(colours.values_list('id', flat=True))   
         gender_checked_string = list([gender[0] for gender in genders])
         gender_checked = list(map(int, gender_checked_string))
-    # print("ALL GENDER: ", gender_checked)
+    cat_checked = list(categories_list.exclude(giftcard_category=True).values_list('id', 'name'))
+    print("ALL GENDER: ", cat_checked)
 
     # """ First get full product list and annotate the sale price of each item """                
     products = Product.objects.all().exclude(obsolete=True
@@ -195,12 +198,50 @@ def product_detail(request, product_id):
     #     # for value in item.keys():
     #     print(key['product'], key['num_ordered'])
 
+    # product_inventory = ProductInventory.objects.filter(product=product_id).annotate(p_colour=F('product__name'))
+    # product_inventory = Product.objects.filter(has_gender=True)
+    # print("AFTER ADD")
+    # product_inventory_json = serializers.serialize("json", product_inventory, ensure_ascii=False)
+    # print("AFTER JSON")
+
+    product_option_list = []
+    product_inventory = ProductInventory.objects.filter(product=product_id)
+    for inventory in product_inventory:
+        # row = [3,4,5,6]
+        # product_option_list.append(row)
+        print("INV COL: ", inventory.product_colour.colour)
+        colour_name = inventory.product_colour.colour.colour
+        image = inventory.product_colour.image.url
+        print("NAME: ", colour_name)
+        row = [inventory.size, inventory.quantity, colour_name, image]
+        product_option_list.append(row)
+        print(row)
+        # product_colour = get_object_or_404(ProductColour, id=inventory.product_colour)
+        
+    product_colour_list = product_inventory.values_list('product_colour', flat=True).distinct()
+    print(product_colour_list)
+    for colour in product_colour_list:
+        print("PROD COLOURS: ", colour)
+
+    product_colour_list =[]
+    product_colour_list = [[1,3,6,7, 'hello'],[1,5,2,2,'there']]
+    
+    # p_colours = product_inventory.ProductColour_set.values()
+    # print("P_COLOURS: ", p_colours)
+
+    # product_colours = ProductColour.objects.filter(colour__in=product_colour_list)
+    # print("COL RECS: ", product_colours.colour)
+
 
     context = {
         'product': product,
         # 'sale_price': sale_price,
         'freq_bought_together': freq_bought_together,
         'product_has_no_orders': product_has_no_orders,
+        'product_inventory': product_inventory,
+        'product_colour_list': product_colour_list,
+        'product_option_list': product_option_list,
+        # 'product_inventory_json': product_inventory_json,
     }
 
     return render(request, 'products/product_detail.html', context)
