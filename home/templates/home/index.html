@@ -1,29 +1,62 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block page-header %}
+{% block page_header %}
     <div class="container header-container">
         <div class="row">
             <div class="col"></div>
         </div>
     </div>
-
 {% endblock %}
 
 {% block content %}
-    <div class="container h-100">
-        <div class="row h-100">
-            <div class="col-7 col-md-6 my-auto">    
-                <h1 class="display-4 logo-font text-black">
-                    The new collections are here
-                </h1>
+    <div class="overlay"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col text-center mt-1">
+                <!-- <h4>Shop Now!!</h4> -->
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-2" id="sidebar">
+                <nav class="col-2 navbar d-none d-md-block navbar-default navbar-light w-100 h-100">
+                    <button class="navbar-toggler" type="button" hidden data-toggle="collapse" data-target="#main-nav" aria-controls="main-nav" aria-expanded="true" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    {% include 'includes/main-nav.html' %}
+                </nav>
+            </div>
+            <div class="product-container col-10">
                 {% if sale_in_progress %}
-                    <h2 style="color:red">Sale Now On</h2>
-                {% endif %}
-                <div class="my-5">
-                    <h4>
-                    <a href="{% url 'products' %}" class="shop-now-button btn btn-lg rounded-0 test-uppercase py-3">Shop Now</a>
-                    </h4>
+                <h2 style="color:red">Sale Now On</h2>
+                {% endif %} 
+                <div class="row mt-2 mb-3"></div>
+                <div class="row">
+                    {% for category in categories %}
+                        <div class="col-sm-6 col-md-6 col-lg-4">
+                        <!-- <div class="col-md-3 mr-3"> -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <a href="{% url 'products' %}" class="card-link">
+                                        
+                                        {% if category.sale_percent > 0 %}
+                                            <p style="color:red">{{ category.sale_percent }}% Discount on all {{ category.friendly_name }}</p>
+                                        {% else %} 
+                                            <p class="card-title mt-2 "><strong>{{ category.name }}</strong></p>
+                                        {% endif %} 
+                                        <div class="image-container mt-3"> 
+                                            {% if category.image %}
+                                                <img class="card-img-top img-fluid" src="{{ category.image.url }}" alt="{{ category.name }}">
+                                            {% else %}
+                                                <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ category.name }}"style="height:220px;">
+                                            {% endif %}
+                                            <p class="card-text mt-3">Shop all brands for {{category.friendly_name }}.</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>    
+                    {% endfor %}
                 </div>
             </div>
         </div>

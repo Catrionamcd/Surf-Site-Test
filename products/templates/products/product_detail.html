@@ -11,21 +11,31 @@
 
 {% block content %}
     <div class="overlay"></div>
-    {% for option in product_option_list %}
-        {{ option }} <img class="card-img-top img-fluid" src="{{ option.3 }}" style="height:20px" style="width:20px" alt="{{ product.name }}"><br>
+
+    <!-- {% for size in size_list %}
+        {{ size.0 }}
+        {{ size.1 }}
     {% endfor %}
+    <br> -->
+
+    <!-- {% for option in product_option_list %}
+        {{ option }} <img class="card-img-top img-fluid" src="{{ option.5 }}" style="height:20px" style="width:20px" alt="{{ product.name }}"><br>
+    {% endfor %}
+    
     {% for inventory in product_inventory %}
     {{ inventory }}
     <br>
     {{ inventory.product_colour_set.all }}
     {% endfor %}
+    
     {% for product_colour_row in product_colour_list %}
     {{ product_colour_row.0 }} <br> {{ product_colour_row.4 }} <br><br>
     {% for product_colour_item in product_colour_row %}
     {{ product_colour_item }}
     <br>
     {% endfor %}
-    {% endfor %}
+    {% endfor %} -->
+    
     <div class="container-fluid">
         <div class="row">
             <div class="col-12 col-md-6 col-lg-4 offset-lg-2">
@@ -74,6 +84,17 @@
                     <form class="form" action="{% url 'add_to_bag' product.id %}" method="POST">
                         {% csrf_token %}
                         <div class="form-row">
+                            
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            {% for prodinv_colour in prodinv_colour_list %}
+                            <button type="button" class="btn btn-primary" id="hatchback11" qty="22" style="height:100px" style="background-image: contain" style="background-image: url('http://s7d9.scene7.com/is/image/JCPenney/DP0113201617034987M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp');"  onclick="myButtonCheck(this)">              
+                                <input type="radio" style="z-index: 10"  id="hatchback11"  value="ABC" autocomplete="off" checked style="background-image: url('http://s7d9.scene7.com/is/image/JCPenney/DP0113201617034987M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp');"> Hatchback
+                            </button><br>
+                            {% endfor %}
+                            </div>
+
+
+
                             {% with product.has_sizes as s %}
                             {% if s %}
                                 <div class="col-12">
@@ -199,7 +220,7 @@
         label.style.backgroundSize = 'contain';
         label.style.backgroundRepeat = 'no-repeat'
 
-        http://s7d9.scene7.com/is/image/JCPenney/DP0113201617034987M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp
+        // http://s7d9.scene7.com/is/image/JCPenney/DP0113201617034987M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp
         
         function myButtonCheck(el) {
 
