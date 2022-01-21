@@ -155,9 +155,12 @@ def product_detail(request, product_id):
     """A view to show individual product details """
     
     product = get_object_or_404(Product, pk=product_id)
-    """ Calculate product sale price which will be used if sale in progress """
-    # sale_price = product.price / 100 * (100 - product.category.sale_percent)
 
+    """ Get Product Inventory for this product - If none then redirect back to products page """
+    product_inventory = ProductInventory.objects.filter(product=product)
+    if product_inventory.count() == 0:
+        messages.info(request, 'Sorry, this product is not in stock at present.')
+        return redirect('/products/')
 
     """ Get Product that was ordered the most while ordering this selected product """
     """ First get a list of all Orders that include this selected Product """
@@ -191,31 +194,17 @@ def product_detail(request, product_id):
     if orders_with_this_product:
         product_has_no_orders = False
 
-    # print(len(each_product_count_desc))
-    # print(each_product_count_desc[0]['product'], each_product_count_desc[0]['num_ordered'])
-
-    # for key in each_product_count_desc:
-    #     # for value in item.keys():
-    #     print(key['product'], key['num_ordered'])
-
-    # product_inventory = ProductInventory.objects.filter(product=product_id).annotate(p_colour=F('product__name'))
-    # product_inventory = Product.objects.filter(has_gender=True)
-    # print("AFTER ADD")
-    # product_inventory_json = serializers.serialize("json", product_inventory, ensure_ascii=False)
-    # print("AFTER JSON")
-
-    # TEMP TEMP TEMP
-    product_option_list = []
-    sizes = ProductInventory.size.field.choices
-    """ Build Product Inventory Colour List and Size List """
+    """ Build Product Inventory List, Colour List and Size List """
+    prodinv_list = []
     prodinv_colour_list =[]
     prodinv_size_list =[]
-    product_inventory = ProductInventory.objects.filter(product=product_id)
+    sizes = ProductInventory.size.field.choices
+
     for inventory in product_inventory:
-        # row = [3,4,5,6]
-        # product_option_list.append(row)
         colour_name = inventory.product_colour.colour.colour
         image = inventory.product_colour.image.url
+        row = [inventory.id, inventory.product_colour.id, inventory.size, inventory.quantity, colour_name, image]
+        prodinv_list.append(row)
 
         """ Unique colours to be added only once - skip repeating colours for different sizes """ 
         colour_not_found = True
@@ -242,24 +231,8 @@ def product_detail(request, product_id):
             prodinv_size_list.append([inventory.size, size_name])
 
 
-        row = [inventory.id, inventory.product_colour.id, inventory.size, inventory.quantity, colour_name, image]
-        product_option_list.append(row)
-        # prodinv_colour_list.append()
-        print("ROW: ", row)
-        # product_colour = get_object_or_404(ProductColour, id=inventory.product_colour)
-
-
-    for pinv in prodinv_size_list:
-        print("PRODINVCOLOUR: ", pinv)
-    product_colour_list = product_inventory.values_list('product_colour', flat=True).distinct()
-    print("ALL PROD COL: ", product_colour_list)
-    for colour in product_colour_list:
-        print("PROD COLOURS: ", colour)
-
+    print("SIZE: ", prodinv_size_list)
     
-    product_colour_list = [[1,3,6,7, 'hello'],[1,5,2,2,'there']]
-    for pc in product_colour_list:
-        print("PC: ", pc[0], pc[4])
     
     # p_colours = product_inventory.ProductColour_set.values()
     # print("P_COLOURS: ", p_colours)
@@ -270,15 +243,11 @@ def product_detail(request, product_id):
 
     context = {
         'product': product,
-        # 'sale_price': sale_price,
         'freq_bought_together': freq_bought_together,
         'product_has_no_orders': product_has_no_orders,
-        'product_inventory': product_inventory,
-        'product_colour_list': product_colour_list,
-        'product_option_list': product_option_list,
+        'prodinv_list': prodinv_list,
         'prodinv_size_list': prodinv_size_list,
         'prodinv_colour_list': prodinv_colour_list,
-        # 'product_inventory_json': product_inventory_json,
     }
 
     return render(request, 'products/product_detail.html', context)
