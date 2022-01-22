@@ -11,21 +11,21 @@
 
 {% block content %}
     <div class="overlay"></div>
-    <label hidden id="image-pre-hover"></label>
-    <label hidden id="colourtext-pre-hover"></label>
-    <label hidden id="prodinv-id"></label>
-    <label hidden id="selected-colour"></label>
-    <label hidden id="selected-size"></label>     
+    <label  class="mr-2" id="image-pre-mouseover">{{ product.image.url }}</label>
+    <label  class="mr-2" id="colourtext-pre-mouseover"></label>
+    <label class="mr-2" id="sizetext-pre-mouseover"></label>
+    <label class="mr-2" id="selected-prodinv-id"></label>
+    <label class="mr-2" id="selected-product-colour-id"></label>
+    <label class="mr-2" id="selected-size-code"></label>
+
 
     <div class="container-fluid">
         <div class="row">
             <div class="col-12 col-md-6 col-lg-4 offset-lg-2">
                 <div class="image-container my-5">
                     {% if product.image %}
-                        <a href="{{ product.image.url }}" target="_blank">
-                            <img class="card-img-top img-fluid" id="large-product-image" src="{{ product.image.url }}" alt="{{ product.name }}">
-                        </a>
-                        {% else %}
+                        <img class="card-img-top img-fluid" id="large-product-image" src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
                         <a href="">
                             <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ product.name }}">
                         </a>
@@ -62,39 +62,42 @@
                         </small>
                     {% endif %}
                     <p class="mt-3">{{ product.description }}</p>
+
+                    {% with product.has_colours as c %}
+                    {% if c %}
+                        <p class="col-12"><strong>Colour: <label id="colour-label"></label></strong></p>
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            {% for prodinv_colour in prodinv_colour_list %}
+                            <button type="button" class="btn border border-primary mr-4 rounded btn-prodinv-colour" id="colour-{{ prodinv_colour.0 }}" 
+                                data-product-colour-id="{{ prodinv_colour.0 }}" data-colour-name="{{ prodinv_colour.1 }}" value="{{ prodinv_colour.2 }}" 
+                                onclick="colourOnClick(this)" onmouseover="colourMouseOver(this)" onmouseout="colourMouseOut(this)"
+                                style="height: 75px; width: 75px; background-image: url('{{ prodinv_colour.2 }}'); background-size: contain; background-repeat: no-repeat">
+                                <input type="radio" style="z-index: 10"  id="colour-{{ prodinv_colour.0 }}" autocomplete="off" checked>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    {% with product.has_sizes as s %}   
+                    {% if s %}
+                        <p class="col-12 mt-2"><strong>Size: <label id="size-label"></label></strong></p>
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            {% for prodinv_size in prodinv_size_list %}
+                            <button type="button" class="btn border border-primary mr-4 rounded btn-prodinv-size" id="size-{{ prodinv_size.0 }}" 
+                                data-size-code="{{ prodinv_size.0 }}" data-size-name="{{ prodinv_size.1 }}"
+                                onclick="sizeOnClick(this)" onmouseover="sizeMouseOver(this)" onmouseout="sizeMouseOut(this)"
+                                style="height:35px; width:35px">
+                                <input type="radio" style="z-index: 10"  id="size-{{ prodinv_size.0 }}" autocomplete="off" checked>{{ prodinv_size.0 }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+
                     <form class="form" action="{% url 'add_to_bag' product.id %}" method="POST">
                         {% csrf_token %}
                         <div class="form-row">
-
-                            {% with product.has_colours as c %}
-                            {% if c %}
-                                <p class="col-12"><strong>Colour: <label id="colour-label"></label></strong></p>
-                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                    {% for prodinv_colour in prodinv_colour_list %}
-                                    <button type="button" class="btn border border-primary mr-4 rounded" id="colour-{{ prodinv_colour.0 }}" data-colour-name="{{ prodinv_colour.1 }}" value="{{ prodinv_colour.2 }}" onclick="colourOnClick(this)" onmouseover="colourMouseOver(this)" onmouseout="colourMouseOut(this)"
-                                        style="height: 75px; width: 75px; background-image: url('{{ prodinv_colour.2 }}'); background-size: contain; background-repeat: no-repeat">
-                                        <input type="radio" style="z-index: 10"  id="colour-{{ prodinv_colour.0 }}" autocomplete="off" checked>
-                                    </button>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            {% endwith %}
-
-                            
-                            {% with product.has_sizes as s %}   
-                            {% if s %}
-                                <p class="col-12 mt-2"><strong>Size: <label id="size-label"></label></strong></p>
-                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                    {% for prodinv_size in prodinv_size_list %}
-                                    <button type="button" class="btn border border-primary mr-4 rounded" id="size-{{ prodinv_size_list.0 }}" onclick="sizeSelected(this)" style="height:35px; width:35px">
-                                        <input type="radio" style="z-index: 10"  id="size-{{ prodinv_size_list.0 }}" autocomplete="off" checked>{{ prodinv_size.0 }}
-                                    </button>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            {% endwith %}
-
-
 
                             {% with product.has_sizes as s %}
                             {% if s %}
@@ -179,7 +182,7 @@
                                     </span>
                                     <span class="text-uppercase">Keep Shopping</span>
                                 </a>
-                                <input type="submit" class="btn btn-black rounded-0 text-uppercase mt-5" value="Add to Bag">
+                                <input type="submit" id="add-to-bag" class="btn btn-black rounded-0 text-uppercase mt-5" value="Add to Bag">
                             </div>
                             <input type="hidden" name="redirect_url" value="{{ request.path }}">
                             {% endwith %}
@@ -218,25 +221,123 @@
         label.style.backgroundRepeat = 'no-repeat'
 
         // http://s7d9.scene7.com/is/image/JCPenney/DP0113201617034987M.tif?hei=380&amp%3Bwid=380&op_usm=.4%2C.8%2C0%2C0&resmode=sharp2&op_usm=1.5%2C.8%2C0%2C0&resmode=sharp
+   
         
+        
+        var hasSizes = document.contains(document.getElementById("size-label")) // If label created then HasSizes is True
+        var hasColours = document.contains(document.getElementById("colour-label")) // If label created the HasColours is True
+        
+        if (hasSizes || hasColours) {   // If Product eith Has Colours OR Has Sizes 
+            document.getElementById("add-to-bag").disabled = true;  // then Disable the Add To Bag button on page load as neither Colour/Size selected yet
+        }
       
         function colourMouseOver(el) {
-            var colourClickedImage = document.getElementById(event.target.id);
-            document.getElementById("large-product-image").src = colourClickedImage.value;
-            console.log(colourClickedImage.getAttribute("data-colour-name"));
-            document.getElementById("colour-label").innerHTML = colourClickedImage.getAttribute("data-colour-name");
+            var colourMouseoverImage = document.getElementById(event.target.id);    // Get element of small Image with Mouseover event
+            document.getElementById("large-product-image").src = colourMouseoverImage.value;    // Change Large Image displayed with Mouseover Image 
+            document.getElementById("colour-label").innerHTML = colourMouseoverImage.getAttribute("data-colour-name");  // Display Colour Text of Mouseover Image
         }
 
         function colourMouseOut(el) {
-
+            var imagePreMouseover = document.getElementById("image-pre-mouseover").innerHTML;   // Get element of small Image with Mouseout event
+            document.getElementById("large-product-image").src = imagePreMouseover; // Put back the Large Image that was present prior to Mouseover
+            var colourtextPreMouseover = document.getElementById("colourtext-pre-mouseover").innerHTML; // Get Colour text present prior to Mousover
+            document.getElementById("colour-label").innerHTML = colourtextPreMouseover; // Put back colour text present prior to Mousover
         }
         
         function colourOnClick(el) {
-            var colourClickedImage = document.getElementById(event.target.id).value;
-            document.getElementById("large-product-image").src = colourClickedImage;
+            var colourClickedImage = document.getElementById(event.target.id);  // Get element that was clicked
+            document.getElementById("image-pre-mouseover").innerHTML = colourClickedImage.value; // Store Image name of Small Image clicked
+            document.getElementById("colourtext-pre-mouseover").innerHTML = colourClickedImage.getAttribute("data-colour-name");   // Store Colour Text of small Image clicked
+            document.getElementById("selected-product-colour-id").innerHTML = colourClickedImage.getAttribute("data-product-colour-id");    // Store ProductColour ID of small Image clicked
+
+            var hasSizes = document.contains(document.getElementById("size-label")) // If label created then HasSizes is True
+            var selectedSizeCode = document.getElementById("selected-size-code").innerHTML; // Get Selected Size Code (If any)
+            var selectedProductColourID = document.getElementById("selected-product-colour-id").innerHTML; // Get Selected Colour Code
+            
+            if ( (!hasSizes) || selectedSizeCode != "") {   // If Product does NOT have sizes OR Size already selected
+                "{% for prodinv in prodinv_list %}"     // Loop through Product Inventory Context to get match of Selected Colour OR (Selected Colour AND Size)
+                    productColourID = "{{ prodinv.1 }}";
+                    if (hasSizes) {
+                        sizeCode = "{{prodinv.2 }}";
+                        if (productColourID == selectedProductColourID && sizeCode == selectedSizeCode) {   // If Match on Colour AND Size
+                            document.getElementById("selected-prodinv-id").innerHTML = "{{ prodinv.0 }}";   // Then save the Selected ProductInventory ID
+                        }
+                    } else {    // No Sizes for this product 
+                        if (productColourID == selectedProductColourID) {   // So only need to match on the Colour
+                            document.getElementById("selected-prodinv-id").innerHTML = "{{ prodinv.0 }}";   // If matches save the Selected ProductInvetory ID
+                        }
+                    }
+                "{% endfor %}"
+            }
+
+            if (!hasSizes) {  // If No Sizes for this Product
+                document.getElementById("add-to-bag").disabled = false;  // then Enable the Add To Bag button as Colour now selected
+            } else {    // Otherwise Has Sizes
+
+                var btnSizeList = document.getElementsByClassName('btn-prodinv-size');   // Get list of all Product Size buttons
+                for(var i=0; i < btnSizeList.length; i++) {          // Loop through each to see if Colour / Size combination exists in Product Inventory Context
+                    btnSizeCode = btnSizeList[i].getAttribute("data-size-code")
+                    var productColourSizeComboExists = false
+                    "{% for prodinv in prodinv_list %}"     // Loop through Product Inventory Context to check if size is in ProductInventory Context for Colour Selected
+                        if (selectedProductColourID == "{{ prodinv.1 }}" && btnSizeCode == "{{ prodinv.2 }}") {
+                            productColourSizeComboExists = true
+                        }
+                    "{% endfor %}"
+                    if (productColourSizeComboExists) {
+
+                    } else {
+                        btnSizeList[i].disabled = true;
+                    }
+                }
+            }
+
         }
 
+
+        function sizeMouseOver(el) {
+            var sizeMouseover = document.getElementById(event.target.id);   // Get element of Size with Mouseover
+            document.getElementById("size-label").innerHTML = sizeMouseover.getAttribute("data-size-name"); // Display Size Text
+        }
+
+        function sizeMouseOut(el) {
+            var sizetextPreMouseover = document.getElementById("sizetext-pre-mouseover").innerHTML; // Get Size text displayed prior to Mouseover
+            document.getElementById("size-label").innerHTML = sizetextPreMouseover; // Put back Size text that was present prior to Mouseover
+        }
         
+        function sizeOnClick(el) {
+            var sizeClicked = document.getElementById(event.target.id); // Get element of Size clicked
+            document.getElementById("sizetext-pre-mouseover").innerHTML = sizeClicked.getAttribute("data-size-name");   // Store Size name of size clicked
+            document.getElementById("selected-size-code").innerHTML = sizeClicked.getAttribute("data-size-code");   // Store zie Code of size clicked
+ 
+            var hasColours = document.contains(document.getElementById("colour-label")) // If label created the HasColours is True
+            var selectedSizeCode = document.getElementById("selected-size-code").innerHTML; // Get Selected Size Code
+            var selectedProductColourID = document.getElementById("selected-product-colour-id").innerHTML; // Get Selected Colour Code (If any)
+
+            if ( (!hasColours) || selectedProductColourID != "") {   // If Product does NOT have colours OR Colour already selected
+                "{% for prodinv in prodinv_list %}"     // Loop through Product Inventory Context to get match of Selected Size OR (Selected Size AND Colour)
+                sizeCode = "{{prodinv.2 }}";    
+                    if (hasColours) {
+                        productColourID = "{{ prodinv.1 }}";
+                        if (productColourID == selectedProductColourID && sizeCode == selectedSizeCode) {   // If Match on Colour AND Size
+                            document.getElementById("selected-prodinv-id").innerHTML = "{{ prodinv.0 }}";   // Then save the Selected ProductInventory ID
+                        }
+                    } else {    // No Colours for this product 
+                        if (sizeCode == selectedSizeCode) {   // So only need to match on the Size
+                            document.getElementById("selected-prodinv-id").innerHTML = "{{ prodinv.0 }}";   // If matches save the Selected ProductInvetory ID
+                        }
+                    }
+                "{% endfor %}"
+            }
+
+            if (!hasColours) {  // If No Colours for this Product
+                document.getElementById("add-to-bag").disabled = false;  // then Enable the Add To Bag button as Size now selected
+            }
+ 
+        }
+        
+
+
+
         function myButtonCheck(el) {
 
             // var checked = $(this).prop("checked")

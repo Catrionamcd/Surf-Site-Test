@@ -230,7 +230,7 @@ def product_detail(request, product_id):
                     size_name = size[1]
             prodinv_size_list.append([inventory.size, size_name])
 
-
+    print("COLOUR: ", prodinv_colour_list)
     print("SIZE: ", prodinv_size_list)
     
     
