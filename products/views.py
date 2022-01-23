@@ -201,35 +201,46 @@ def product_detail(request, product_id):
     sizes = ProductInventory.size.field.choices
 
     for inventory in product_inventory:
-        colour_name = inventory.product_colour.colour.colour
-        image = inventory.product_colour.image.url
-        row = [inventory.id, inventory.product_colour.id, inventory.size, inventory.quantity, colour_name, image]
+        if inventory.product_colour:
+            colour_name = inventory.product_colour.colour.colour
+        else:
+            colour_name = "N/A"
+        if inventory.product_colour:
+            image = inventory.product_colour.image.url
+            product_colour_id = inventory.product_colour.id
+        else:
+            image = "N/A"
+            product_colour_id = 0
+        row = [inventory.id, product_colour_id, inventory.size, inventory.quantity, colour_name, image]
         prodinv_list.append(row)
 
-        """ Unique colours to be added only once - skip repeating colours for different sizes """ 
-        colour_not_found = True
-        for colour in prodinv_colour_list:
-            if colour[0] == inventory.product_colour.id:
-                colour_not_found = False
-                break
-    
-        if colour_not_found:
-            prodinv_colour_list.append([inventory.product_colour.id, colour_name, image])
+        if product.has_colours:
+            """ Unique colours to be added only once - skip repeating colours for different sizes """ 
+            colour_not_found = True
+            for colour in prodinv_colour_list:
+                if colour[0] == inventory.product_colour.id:
+                    colour_not_found = False
+                    break
+        
+            if colour_not_found:
+                prodinv_colour_list.append([inventory.product_colour.id, colour_name, image])
 
-        """ Unique sizes to be added only once - skip repeating sizes for different colours """ 
-        size_not_found = True
-        for size in prodinv_size_list:
-            if size[0] == inventory.size:
-                size_not_found = False
-                break
-    
-        if size_not_found:
-            size_name = ""
-            for size in sizes:
-                if inventory.size == size[0]:
-                    size_name = size[1]
-            prodinv_size_list.append([inventory.size, size_name])
+        if product.has_sizes:
+            """ Unique sizes to be added only once - skip repeating sizes for different colours """ 
+            size_not_found = True
+            for size in prodinv_size_list:
+                if size[0] == inventory.size:
+                    size_not_found = False
+                    break
+        
+            if size_not_found:
+                size_name = ""
+                for size in sizes:
+                    if inventory.size == size[0]:
+                        size_name = size[1]
+                prodinv_size_list.append([inventory.size, size_name])
 
+    print("PINV: ", prodinv_list)
     print("COLOUR: ", prodinv_colour_list)
     print("SIZE: ", prodinv_size_list)
     
